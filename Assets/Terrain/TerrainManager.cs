@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Terrain.Generators;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -44,7 +45,7 @@ namespace Terrain
         class ChunkData
         {
             public TerrainChunk chunk;
-            public BlockType[,,] blocks;
+            public NativeArray<int> blockIndex;
         }
 
         private readonly Dictionary<ChunkCoord, ChunkData> chunks = new();
@@ -54,6 +55,11 @@ namespace Terrain
         {
             BlockData.InitializeBlockData();
             LoadInitialChunks();
+        }
+
+        private void OnDestroy()
+        {
+            BlockData.ClearBlockData();
         }
 
         /// <summary>
@@ -66,11 +72,11 @@ namespace Terrain
             {
                 // Regenerate terrain
                 Vector3Int position = pair.Key * chunkSize;
-                BlockType[,,] chunkData = generator.GenerateTerrain(position, chunkSize);
+                NativeArray<int> chunkData = generator.GenerateTerrain(position, chunkSize);
 
                 // Update chunk
-                pair.Value.chunk.UpdateTerrain(this, chunkData);
-                pair.Value.blocks = chunkData;
+                pair.Value.chunk.UpdateTerrain(this, chunkData, chunkSize);
+                pair.Value.blockIndex = chunkData;
             }
         }
 
@@ -92,14 +98,14 @@ namespace Terrain
             TerrainChunk newChunk = Instantiate(chunkPrefab, position, Quaternion.identity, transform);
 
             // Generate chunk data
-            BlockType[,,] chunkData = generator.GenerateTerrain(position, chunkSize);
-            newChunk.UpdateTerrain(this, chunkData);
+            NativeArray<int> chunkData = generator.GenerateTerrain(position, chunkSize);
+            newChunk.UpdateTerrain(this, chunkData, chunkSize);
 
             // Add chunk
             chunks.Add(chunkCoord, new ChunkData()
             {
                 chunk = newChunk,
-                blocks = chunkData,
+                blockIndex = chunkData,
             });
         }
 
@@ -197,7 +203,8 @@ namespace Terrain
             if (!chunks.TryGetValue(chunkCoord, out ChunkData chunkData)) return null;
 
             ChunkPosition chunkPosition = GetChunkPosition(position);
-            return chunkData.blocks[chunkPosition.x, chunkPosition.y, chunkPosition.z];
+            int index = chunkPosition.x + (chunkPosition.y * chunkSize.x) + (chunkPosition.z * chunkSize.x * chunkSize.y);
+            return BlockData.GetBlock(chunkData.blockIndex[index]);
         }
 
         /// <summary>
@@ -213,10 +220,11 @@ namespace Terrain
             }
 
             ChunkPosition chunkPosition = GetChunkPosition(position);
-            chunkData.blocks[chunkPosition.x, chunkPosition.y, chunkPosition.z] = block;
+            int index = chunkPosition.x + (chunkPosition.y * chunkSize.x) + (chunkPosition.z * chunkSize.x * chunkSize.y);
+            chunkData.blockIndex[index] = block.Index;
 
             if (regenerateMesh) {
-                chunkData.chunk.UpdateTerrain(this, chunkData.blocks);
+                chunkData.chunk.UpdateTerrain(this, chunkData.blockIndex, chunkSize);
                 //TODO update neighboring chunks 
             }
             else
@@ -254,7 +262,7 @@ namespace Terrain
             {
                 if (chunks.TryGetValue(chunkCoord, out ChunkData chunkData))
                 {
-                    chunkData.chunk.UpdateTerrain(this, chunkData.blocks);
+                    chunkData.chunk.UpdateTerrain(this, chunkData.blockIndex, chunkSize);
                 }
             }
             dirtyChunks.Clear();

@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using UnityEngine;
 
 namespace Terrain
@@ -8,6 +9,8 @@ namespace Terrain
 
         private static BlockType[] blocks;
         private static Texture2D blockAtlas;
+        
+        private static NativeArray<BlockType.BlockTypeInfo> blockInfos;
 
         private static BlockType[] GetBlockTypes()
         {
@@ -76,10 +79,23 @@ namespace Terrain
                 Rect uvRect = new Rect(uvMinX, uvMinY, uvWidth, uvHeight);
                 blocks[i].UVs = uvRect;
             }
+            
+            // Construct Block Info Array
+            blockInfos = new NativeArray<BlockType.BlockTypeInfo>(blocks.Length, Allocator.Persistent);
+            for (int i = 0; i < blocks.Length; i++)
+            {
+                blockInfos[i] = blocks[i].Info;
+            }
+        }
+
+        public static void ClearBlockData()
+        {
+            blockInfos.Dispose();
         }
 
         public static BlockType GetBlock(int index)
         {
+            if (index < 0) return null;
             return blocks[index];
         }
 

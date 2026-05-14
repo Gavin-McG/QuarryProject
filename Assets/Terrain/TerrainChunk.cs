@@ -1,10 +1,29 @@
 ﻿using System.Collections.Generic;
 using ClickManager;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Terrain
 {
+
+    public struct CountTerrainSizeJob : IJobFor
+    {
+        public int xSize, ySize, zSize;
+        [ReadOnly] public NativeArray<BlockType.BlockTypeInfo> blocks;
+        [ReadOnly] public NativeArray<int> blockIndexes;
+
+        public NativeArray<int> vertexCounts;
+        public NativeArray<int> indexCounts;
+        
+        public void Execute(int index)
+        {
+            int x = index % xSize;
+            int y = (index / xSize) % ySize;
+            int z = index / (xSize * ySize);
+        }
+    }
 
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
@@ -15,12 +34,12 @@ namespace Terrain
 
         private TerrainManager manager;
 
-        public void UpdateTerrain(TerrainManager terrainManager, BlockType[,,] terrain)
+        public void UpdateTerrain(TerrainManager terrainManager, NativeArray<int> terrain, Vector3Int size)
         {
             manager = terrainManager;
 
             // Create terrain mesh
-            Mesh terrainMesh = GenerateTerrainMesh(terrain);
+            Mesh terrainMesh = GenerateTerrainMesh(terrain, size);
 
             // Assign to components
             MeshFilter meshFilter = GetComponent<MeshFilter>();
@@ -35,16 +54,15 @@ namespace Terrain
         }
 
         //TODO Don't generate faces based on neighboring chunks
-        private Mesh GenerateTerrainMesh(BlockType[,,] terrain)
+        private Mesh GenerateTerrainMesh(NativeArray<int> terrain, Vector3Int size)
         {
             var vertices = new List<Vector3>();
             var triangles = new List<int>();
             var uvs = new List<Vector2>();
-            var colors = new List<Color>();
 
-            int width = terrain.GetLength(0);
-            int height = terrain.GetLength(1);
-            int depth = terrain.GetLength(2);
+            int width = size.x;
+            int height = size.y;
+            int depth = size.z;
 
             int vertexIndex = 0;
 
@@ -54,7 +72,9 @@ namespace Terrain
                 {
                     for (int z = 0; z < depth; z++)
                     {
-                        BlockType block = terrain[x, y, z];
+                        int index = x + (y * size.x) + (z * size.x * size.y);
+                        
+                        BlockType block = BlockData.GetBlock(terrain[index]);
                         if (!block) continue;
 
                         Vector3 blockPos = new Vector3(x, y, z);
@@ -75,7 +95,6 @@ namespace Terrain
             mesh.vertices = vertices.ToArray();
             mesh.triangles = triangles.ToArray();
             mesh.uv = uvs.ToArray();
-            mesh.colors = colors.ToArray();
             mesh.RecalculateNormals();
 
             return mesh;
@@ -83,18 +102,27 @@ namespace Terrain
             // Local helpers
             void TryAddFace(int x, int y, int z, Vector3 dir, Vector3 pos, BlockType block)
             {
+                if (block.Index == 0)
+                {
+                    Debug.Log("Block 1");
+                }
+                
                 int nx = x + (int)dir.x;
                 int ny = y + (int)dir.y;
                 int nz = z + (int)dir.z;
 
-                // If neighbor is inside bounds and solid → skip
-                if (nx >= 0 && ny >= 0 && nz >= 0 &&
-                    nx < width && ny < height && nz < depth &&
-                    terrain[nx, ny, nz] != null)
+                // Add face if out of bounds
+                if (nx < 0 || ny < 0 || nz < 0 || nx >= width || ny >= height || nz >= depth)
                 {
+                    AddFace(dir, pos, block);
                     return;
                 }
+                
+                // Skip face if covered by block
+                int index = nx + (ny * size.x) + (nz * size.x * size.y);
+                if (terrain[index] != -1) return;
 
+                // Add face if in-bounds and not covered
                 AddFace(dir, pos, block);
             }
 
@@ -118,12 +146,7 @@ namespace Terrain
                 uvs.Add(new Vector2(faceUVs.xMax, faceUVs.yMin));
                 uvs.Add(new Vector2(faceUVs.xMax, faceUVs.yMax));
                 uvs.Add(new Vector2(faceUVs.xMin, faceUVs.yMax));
-
-                colors.Add(block.color);
-                colors.Add(block.color);
-                colors.Add(block.color);
-                colors.Add(block.color);
-
+                
                 vertexIndex += 4;
             }
 

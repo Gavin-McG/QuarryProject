@@ -7,9 +7,19 @@ namespace Terrain
     {
         [SerializeField] public string blockName;
         [SerializeField] public Sprite sprite;
-        [SerializeField] public Color color = Color.white;
 
         public int Index { get; set; }
         public Rect UVs { get; set; }
+
+        public struct BlockTypeInfo
+        {
+            public float uMin, uMax, vMin, vMax;
+        }
+        
+        public BlockTypeInfo Info => new BlockTypeInfo()
+        {
+            uMin = UVs.xMin, uMax = UVs.xMax,
+            vMin = UVs.yMin, vMax = UVs.yMax,
+        };
     }
 }

@@ -1,3 +1,4 @@
+using Unity.Collections;
 using UnityEngine;
 
 namespace Terrain.Generators
@@ -10,16 +11,16 @@ namespace Terrain.Generators
     {
         [SerializeField] private BlockType block;
 
-        public override BlockType[,,] GenerateTerrain(Vector3Int position, Vector3Int size)
+        public override NativeArray<int> GenerateTerrain(Vector3Int position, Vector3Int size)
         {
             // Create the multidimensional array
-            BlockType[,,] terrain = new BlockType[size.x, size.y, size.z];
+            int totalSize = size.x * size.y * size.z;
+            NativeArray<int> terrain = new NativeArray<int>(totalSize, Allocator.Persistent);
 
             // Populate the array with the block type
-            for (int x = 0; x < size.x; x++)
-            for (int y = 0; y < size.y; y++)
-            for (int z = 0; z < size.z; z++)
-                terrain[x, y, z] = block;
+            int blockIndex = block.Index;
+            for (int i = 0; i < totalSize; i++)
+                terrain[i] = blockIndex;
 
             // Return the array
             return terrain;

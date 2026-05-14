@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 namespace Terrain.Generators
@@ -23,23 +24,27 @@ namespace Terrain.Generators
 
         [SerializeField] private List<Layer> layers;
 
-        public override BlockType[,,] GenerateTerrain(Vector3Int position, Vector3Int size)
+        public override NativeArray<int> GenerateTerrain(Vector3Int position, Vector3Int size)
         {
             // Create the multidimensional array
-            BlockType[,,] terrain = new BlockType[size.x, size.y, size.z];
-
+            int totalSize = size.x * size.y * size.z;
+            NativeArray<int> terrain = new NativeArray<int>(totalSize, Allocator.Persistent);
+            
             // Populate the array with the block type
             for (int x = 0; x < size.x; x++)
             for (int y = 0; y < size.y; y++)
             for (int z = 0; z < size.z; z++)
             {
+                int index = x + (y * size.x) + (z * size.x * size.y);
+
                 float noise = PerlinNoise3D(x + position.x, y + position.y, z + position.z);
-                terrain[x, y, z] = null;
+                
+                terrain[index] = -1;
                 foreach (Layer layer in layers)
                 {
                     if (noise < layer.noiseThreshold)
                     {
-                        terrain[x, y, z] = layer.block;
+                        terrain[index] = layer.block.Index;
                         break;
                     }
                 }
