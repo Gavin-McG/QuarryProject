@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7500edd25c704d1d98a74ec1dc6a91b5, type: 3}
+  m_Name: Spawner
+  m_EditorClassIdentifier: MachineSystem::MachineSystem.Machines.Spawner.SpawnerType
+  prefab: {fileID: 2075635013424332719, guid: 160ab63b874e9684ca35c91b03360a65, type: 3}
+  item:
+    type: {fileID: 11400000, guid: 5fc7ce563c29a6d4ab68cfaa5e22653b, type: 2}
+    quantity: 1

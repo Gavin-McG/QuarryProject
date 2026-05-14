@@ -1,0 +1,7 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="bar_container" picking-mode="Ignore" style="flex-grow: 1; flex-direction: column-reverse;">
+        <ui:VisualElement name="bar_background" style="background-color: rgb(188, 188, 188); height: auto; min-height: 10%; max-height: 10%; min-width: auto; margin-bottom: 0.5%; align-self: center; align-items: stretch; flex-direction: row; justify-content: space-around;">
+            <ui:VisualElement name="tools_container" style="flex-direction: row; justify-content: space-between; align-items: stretch; align-self: center; height: 100%;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

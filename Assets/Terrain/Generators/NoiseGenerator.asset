@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eccabdddb97fa2e47a3ccc0a4c4d020d, type: 3}
+  m_Name: NoiseGenerator
+  m_EditorClassIdentifier: Assembly-CSharp::NoiseTerrainGenerator
+  noiseScale: 0.1
+  layers:
+  - block: {fileID: 11400000, guid: 072dade6f04332241bfa374c237e5938, type: 2}
+    noiseThreshold: 0.38
+  - block: {fileID: 11400000, guid: 40ebd5c43a0e47d4dbeda9457f57902d, type: 2}
+    noiseThreshold: 0.42
+  - block: {fileID: 11400000, guid: a9076901d8519f24b9b9a8072de54e30, type: 2}
+    noiseThreshold: 0.46
+  - block: {fileID: 11400000, guid: 9acf4c8b7644adc40a11a9fe9177f9aa, type: 2}
+    noiseThreshold: 0.5

@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47fba955e80c48aaa7061bd9bc2c77bf, type: 3}
+  m_Name: Change Tool
+  m_EditorClassIdentifier: Assembly-CSharp::GameTools.Tools.ChangeTool
+  toolSprite: {fileID: -1027447451, guid: 753a4a1accf68e54dbb69e11141691be, type: 3}
+  block: {fileID: 11400000, guid: 40ebd5c43a0e47d4dbeda9457f57902d, type: 2}

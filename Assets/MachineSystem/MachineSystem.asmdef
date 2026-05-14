@@ -1,0 +1,17 @@
+{
+    "name": "MachineSystem",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c8313d586a13e70488f1b54fa83a77e5",
+        "GUID:16cfb0b475fca1f47a51e2b364a00781"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

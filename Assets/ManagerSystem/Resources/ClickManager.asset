@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 620ec4c1886a44209164ab2cd4f0f70e, type: 3}
+  m_Name: ClickManager
+  m_EditorClassIdentifier: Managers::Managers.ManagerObject
+  prefab: {fileID: 3711439820172188503, guid: bf9b00e99e6c5634f9915fa32d102861, type: 3}
+  spawnOnInitialize: 1
