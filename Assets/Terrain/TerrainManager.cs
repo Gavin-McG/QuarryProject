@@ -43,6 +43,9 @@ namespace Terrain
         [SerializeField] private ChunkCoord initialChunkMin = new ChunkCoord(-2, -4, -2);
         [SerializeField] private ChunkCoord initialChunkMax = new ChunkCoord(2, 0, 2);
 
+        public readonly UnityEvent<Vector3Int> BlockRemoved = new();
+        public readonly UnityEvent<Vector3Int> BlockAdded = new();
+
         class ChunkData
         {
             public TerrainChunk chunk;
@@ -219,18 +222,28 @@ namespace Terrain
         /// </summary>
         public void SetBlock(Vector3Int position, BlockType block, bool regenerateMesh = true)
         {
+            // Get the correct chunk
             ChunkCoord chunkCoord = GetChunkCoord(position);
-
             if (!chunks.TryGetValue(chunkCoord, out ChunkData chunkData))
             {
                 Debug.LogWarning("TerrainManager: Attempting to write to a block in an unloaded chunk " + chunkCoord);
                 return;
             }
-
+            
+            // Calculate block Index within chunk
             ChunkPosition chunkPosition = GetChunkPosition(position);
             int index = chunkPosition.x + (chunkPosition.y * chunkSize.x) + (chunkPosition.z * chunkSize.x * chunkSize.y);
-            chunkData.blockIndex[index] = block?.Index ?? -1;
+            
+            // Change block
+            int oldIndex = chunkData.blockIndex[index];
+            int newIndex = block?.Index ?? -1;
+            chunkData.blockIndex[index] = newIndex;
+            
+            // Call change events
+            if (oldIndex != -1) BlockRemoved.Invoke(position);
+            if (newIndex != -1) BlockAdded.Invoke(position);
 
+            // Regenerate chunk mesh
             if (regenerateMesh) {
                 chunkData.chunk.UpdateTerrain(this, chunkData.blockIndex, chunkSize);
                 //TODO update neighboring chunks 

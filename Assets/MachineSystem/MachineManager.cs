@@ -22,6 +22,8 @@ namespace MachineSystem
             var rangeSize = rangeMax - rangeMin;
             machines = new Machine[rangeSize.x, rangeSize.y, rangeSize.z];
             terrainManager = Managers.GetManager<TerrainManager>();
+            
+            terrainManager.BlockRemoved.AddListener(RemoveMachine);
         }
 
         private void Update()
