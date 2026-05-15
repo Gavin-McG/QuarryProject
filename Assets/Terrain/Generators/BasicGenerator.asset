@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38eab3f58d5e04d439950b5349302812, type: 3}
   m_Name: BasicGenerator
   m_EditorClassIdentifier: Assembly-CSharp::SolidTerrainGenerator
-  dimensions: {x: 120, y: 120, z: 120}
-  block: {fileID: 11400000, guid: 072dade6f04332241bfa374c237e5938, type: 2}
+  block: {fileID: 11400000, guid: 676b9d7a29b0ea049a0a85b201c2da15, type: 2}

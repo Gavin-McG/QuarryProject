@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NoiseTerrainGenerator
   noiseScale: 0.1
   layers:
-  - block: {fileID: 11400000, guid: 072dade6f04332241bfa374c237e5938, type: 2}
+  - block: {fileID: 11400000, guid: 676b9d7a29b0ea049a0a85b201c2da15, type: 2}
     noiseThreshold: 0.38
-  - block: {fileID: 11400000, guid: 40ebd5c43a0e47d4dbeda9457f57902d, type: 2}
+  - block: {fileID: 11400000, guid: b23ce021f72a0ce4da7a75c29072fb32, type: 2}
     noiseThreshold: 0.42
-  - block: {fileID: 11400000, guid: a9076901d8519f24b9b9a8072de54e30, type: 2}
+  - block: {fileID: 11400000, guid: 7d414071dd9b8a44bb3effdb560d8ced, type: 2}
     noiseThreshold: 0.46
-  - block: {fileID: 11400000, guid: 9acf4c8b7644adc40a11a9fe9177f9aa, type: 2}
+  - block: {fileID: 11400000, guid: 396a54d43f638094cb2930227a7f4841, type: 2}
     noiseThreshold: 0.5

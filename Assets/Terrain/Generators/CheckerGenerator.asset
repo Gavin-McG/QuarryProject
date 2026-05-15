@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 676a44eeab404b03b8d488f208c83e79, type: 3}
   m_Name: CheckerGenerator
   m_EditorClassIdentifier: Assembly-CSharp::CheckerTerrainGenerator
-  block1: {fileID: 11400000, guid: 072dade6f04332241bfa374c237e5938, type: 2}
-  block2: {fileID: 11400000, guid: 40ebd5c43a0e47d4dbeda9457f57902d, type: 2}
+  block1: {fileID: 11400000, guid: 676b9d7a29b0ea049a0a85b201c2da15, type: 2}
+  block2: {fileID: 11400000, guid: b23ce021f72a0ce4da7a75c29072fb32, type: 2}

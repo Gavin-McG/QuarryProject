@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Terrain.Blocks;
+using Unity.Collections;
 using UnityEngine;
 
 namespace Terrain.Generators

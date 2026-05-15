@@ -1,17 +1,13 @@
 using UnityEngine;
 
-namespace Terrain
+namespace Terrain.Blocks
 {
-    [CreateAssetMenu(fileName = "BlockType", menuName = "Scriptable Objects/BlockType")]
-    public class BlockType : ScriptableObject
+    public abstract class BlockType : ScriptableObject
     {
-        [SerializeField] public string blockName;
-        [SerializeField] private Sprite sprite;
+        public abstract Sprite GetSprite(Direction direction);
         
-        public Sprite GetSprite(Direction direction) => sprite;
-
         public int Index { get; set; }
-
+        
         public struct BlockFaceData
         {
             public float uMin, uMax, vMin, vMax;
