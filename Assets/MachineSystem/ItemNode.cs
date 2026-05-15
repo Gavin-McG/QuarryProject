@@ -72,5 +72,16 @@ namespace MachineSystem
             reserved = false;
             reservedNode = null;
         }
+
+        public void OnDrawGizmos()
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawCube(position, Vector3.one * 0.1f);
+            if (inputNode != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(position, inputNode.position);
+            }
+        }
     }
 }

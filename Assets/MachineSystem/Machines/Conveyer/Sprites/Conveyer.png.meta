@@ -119,7 +119,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: conveyer_side_R
+      name: conveyer_straight_R
       rect:
         serializedVersion: 2
         x: 16
@@ -207,7 +207,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: conveyer_side_F
+      name: conveyer_straight_F
       rect:
         serializedVersion: 2
         x: 0
@@ -229,7 +229,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: conveyer_side_B
+      name: conveyer_straight_B
       rect:
         serializedVersion: 2
         x: 32
@@ -273,7 +273,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: conveyer_side_L
+      name: conveyer_straight_L
       rect:
         serializedVersion: 2
         x: 16
@@ -360,6 +360,72 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: conveyer_side_flat
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 778f1e348e932c5458008a0ad0bba74a
+      internalID: 181346839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: conveyer_side_belt
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3103209d4be32d44c874238ff6225c29
+      internalID: -214162432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: conveyer_bottom
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 16
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 36be8dac21d3dc642a1cd069d3b550b9
+      internalID: -2010463830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -376,6 +442,7 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":16.0,"y":16.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
+      conveyer_bottom: -2010463830
       conveyer_corner_BL: -789755609
       conveyer_corner_BR: -1479150891
       conveyer_corner_FL: 1780182220
@@ -384,10 +451,13 @@ TextureImporter:
       conveyer_corner_LF: -2118894301
       conveyer_corner_RB: 232108249
       conveyer_corner_RF: -1715099552
-      conveyer_side_B: -1552358325
-      conveyer_side_F: -1657480489
-      conveyer_side_L: 693783899
-      conveyer_side_R: 1873164316
+      conveyer_side_belt: -214162432
+      conveyer_side_flat: 181346839
+      conveyer_sstraight_L: 693783899
+      conveyer_straight_B: -1552358325
+      conveyer_straight_F: -1657480489
+      conveyer_straight_L: 693783899
+      conveyer_straight_R: 1873164316
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ItemSystem;
 using Terrain;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace MachineSystem.Machines.Spawner
         {
             node = new ItemNode()
             {
-                position = transform.position,
+                position = transform.position + Vector3.up*0.5f,
                 item = null
             };
         }
@@ -63,6 +64,11 @@ namespace MachineSystem.Machines.Spawner
         {
             Item item = node.item;
             Debug.Log(item!=null ? item.ToString() : "No Item");
+        }
+
+        public void OnDrawGizmos()
+        {
+            node.OnDrawGizmos();
         }
     }
 }

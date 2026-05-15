@@ -22,9 +22,9 @@ namespace Terrain
         public static Direction Opposite(Direction direction) => direction switch
         {
             Direction.Up => Direction.Down,
-            Direction.Down => Direction.Left,
+            Direction.Down => Direction.Up,
             Direction.Left => Direction.Right,
-            Direction.Right => Direction.Forward,
+            Direction.Right => Direction.Left,
             Direction.Forward => Direction.Back,
             _ => Direction.Forward,
         };

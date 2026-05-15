@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MachineSystem.Machines;
+using ManagerSystem;
 using Terrain;
 using UnityEngine;
 
@@ -12,12 +13,15 @@ namespace MachineSystem
         [SerializeField] private Vector3Int rangeMax;
         
         private Machine[,,] machines;
+        
         private readonly HashSet<Machine> machineSet = new();
+        private TerrainManager terrainManager;
 
         private void Start()
         {
             var rangeSize = rangeMax - rangeMin;
             machines = new Machine[rangeSize.x, rangeSize.y, rangeSize.z];
+            terrainManager = Managers.GetManager<TerrainManager>();
         }
 
         private void Update()
@@ -69,6 +73,7 @@ namespace MachineSystem
             if (!SpaceOpen(position)) return null;
             
             // Create new Machine
+            terrainManager.SetBlock(position, machineType.block);
             Machine newMachine = machineType.CreateMachine(this, position);
             SetMachine(position, newMachine);
             machineSet.Add(newMachine);

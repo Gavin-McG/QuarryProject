@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 05070c050179440fb7b707ffa408e986, type: 3}
-  m_Name: Conveyer
+  m_Name: Conveyer BF
   m_EditorClassIdentifier: Assembly-CSharp::MachineSystem.Machines.ConveyerType
+  block: {fileID: 11400000, guid: c16bfbab70f1f584e9cc9da70871fd93, type: 2}
   prefab: {fileID: 597883787863385398, guid: 68d24306efb8d384591bc180faf1aaf4, type: 3}
-  inputDirection: 2
-  outputDirection: 3
+  inputDirection: 5
+  outputDirection: 4

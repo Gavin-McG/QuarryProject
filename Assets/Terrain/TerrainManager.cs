@@ -224,6 +224,7 @@ namespace Terrain
             if (!chunks.TryGetValue(chunkCoord, out ChunkData chunkData))
             {
                 Debug.LogWarning("TerrainManager: Attempting to write to a block in an unloaded chunk " + chunkCoord);
+                return;
             }
 
             ChunkPosition chunkPosition = GetChunkPosition(position);
