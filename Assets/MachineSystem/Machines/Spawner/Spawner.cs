@@ -8,10 +8,8 @@ namespace MachineSystem.Machines.Spawner
 {
     public class Spawner : Machine
     {
+        [SerializeField] private ItemInstance itemPrefab;
         [SerializeField, HideInInspector] public SpawnerType spawnerType;
-        
-        [SerializeField, HideInInspector] public Item item;
-        
         [SerializeReference, HideInInspector] public ItemNode node;
 
         public void Awake()
@@ -19,8 +17,18 @@ namespace MachineSystem.Machines.Spawner
             node = new ItemNode()
             {
                 position = transform.position + Vector3.up*0.5f,
-                item = null
+                itemInstance = null
             };
+        }
+        
+        public void Update()
+        {
+            node.Update();
+        }
+
+        public void OnDestroy()
+        {
+            node.OnDestroy();
         }
 
         public override MachineType GetMachineType()
@@ -56,14 +64,21 @@ namespace MachineSystem.Machines.Spawner
         public override void Operate()
         {
             node.Operate();
-            node.item = item.Copy;
+
+            // Spawn new item
+            if (node.itemInstance != null) return;
+            ItemInstance newInstance = Instantiate(itemPrefab);
+            newInstance.item = spawnerType.itemQuantity;
+            newInstance.SetPosition(node.position);
+            
+            node.itemInstance = newInstance;
         }
         
         [ContextMenu("Print Item")]
         public void PrintItem()
         {
-            Item item = node.item;
-            Debug.Log(item!=null ? item.ToString() : "No Item");
+            ItemInstance itemInstance = node.itemInstance;
+            Debug.Log(itemInstance!=null ? itemInstance.item.ToString() : "No Item");
         }
 
         public void OnDrawGizmos()

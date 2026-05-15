@@ -7,14 +7,13 @@ namespace MachineSystem.Machines.Spawner
     public class SpawnerType : MachineType
     {
         [SerializeField] private Spawner prefab;
-        [SerializeField] private Item item;
+        [SerializeField] public ItemQuantity itemQuantity;
         
         public override Machine CreateMachine(MachineManager manager, Vector3Int position)
         {
             var machine = Instantiate(prefab, position + PositionOffset, Quaternion.identity, manager.transform);
             machine.position = position;
             machine.spawnerType = this;
-            machine.item = item.Copy;
             return machine;
         }
     }

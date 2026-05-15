@@ -10,7 +10,8 @@ namespace MachineSystem
         //node info
         [SerializeReference] public ItemNode inputNode = null;
         [SerializeField] public Vector3 position;
-        [NonSerialized] public Item item = null;
+        [SerializeField] public float transitionTime = 1f;
+        [NonSerialized] public ItemInstance itemInstance = null;
 
         //item animation info
         [SerializeField] private Vector3 takePosition = Vector3.zero;
@@ -20,9 +21,26 @@ namespace MachineSystem
         [SerializeField] private ItemNode reservedNode = null;
         [SerializeField] private bool reserved = false;
 
+        public void Update()
+        {
+            if (itemInstance == null) return;
+            
+            // Set new position of the item
+            float t = Mathf.Clamp01((Time.time - takeTime) / transitionTime);
+            Vector3 itemPosition = Vector3.Lerp(takePosition, position, t);
+            itemInstance.SetPosition(itemPosition);
+        }
+
+        public void OnDestroy()
+        {
+            if (itemInstance == null) return;
+            
+            UnityEngine.Object.Destroy(itemInstance.gameObject);
+        }
+
         public void Evaluate()
         {
-            if (item == null && (inputNode?.Reserve() ?? false))
+            if (itemInstance == null && (inputNode?.Reserve() ?? false))
             {
                 reservedNode = inputNode;
             }
@@ -32,7 +50,7 @@ namespace MachineSystem
         {
             if (reservedNode != null)
             {
-                item = reservedNode.TakeItem();
+                itemInstance = reservedNode.TakeItem();
                 takePosition = reservedNode.position;
                 takeTime = Time.time;
             }
@@ -44,10 +62,10 @@ namespace MachineSystem
         /// Transfers ownership of this node's item
         /// </summary>
         /// <returns>The item belonging to the node</returns>
-        private Item TakeItem()
+        private ItemInstance TakeItem()
         {
-            Item temp = item;
-            item = null;
+            ItemInstance temp = itemInstance;
+            itemInstance = null;
             return temp;
         }
 
@@ -58,7 +76,10 @@ namespace MachineSystem
         private bool Reserve()
         {
             // only reserve if not reserved and has item
-            if (reserved || item==null) return false;
+            if (reserved || itemInstance==null) return false;
+            
+            // Only reserve if item is fully transitioned
+            if (Time.time - takeTime < transitionTime) return false;
             
             reserved = true;
             return true;

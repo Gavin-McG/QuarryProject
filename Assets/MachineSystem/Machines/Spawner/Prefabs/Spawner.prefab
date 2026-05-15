@@ -45,10 +45,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MachineSystem::MachineSystem.Machines.Spawner.Spawner
   position: {x: 0, y: 0, z: 0}
+  itemPrefab: {fileID: 5732474236294173983, guid: 460e74ecd25246f4a852b9ac0003c5f5, type: 3}
   spawnerType: {fileID: 0}
-  item:
-    type: {fileID: 0}
-    quantity: 0
   node:
     rid: -2
   references:

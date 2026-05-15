@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MachineSystem.Machines;
 using ManagerSystem;
 using Terrain;

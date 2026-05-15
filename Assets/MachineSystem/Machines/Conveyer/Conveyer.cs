@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ItemSystem;
 using Terrain;
 using UnityEngine;
@@ -9,10 +8,6 @@ namespace MachineSystem.Machines.Conveyer
     public class Conveyer : Machine
     {
         [SerializeField, HideInInspector] public ConveyerType conveyerType;
-        
-        [SerializeField, HideInInspector] public Direction inputDirection;
-        [SerializeField, HideInInspector] public Direction outputDirection;
-        
         [SerializeReference, HideInInspector] public ItemNode node;
 
         public void Awake()
@@ -23,6 +18,16 @@ namespace MachineSystem.Machines.Conveyer
             };
         }
 
+        public void Update()
+        {
+            node.Update();
+        }
+        
+        public void OnDestroy()
+        {
+            node.OnDestroy();
+        }
+
         public override MachineType GetMachineType()
         {
             return conveyerType;
@@ -30,17 +35,17 @@ namespace MachineSystem.Machines.Conveyer
 
         public override IEnumerable<Direction> GetInputDirections()
         {
-            yield return inputDirection;
+            yield return conveyerType.inputDirection;
         }
 
         public override IEnumerable<Direction> GetOutputDirections()
         {
-            yield return outputDirection;
+            yield return conveyerType.outputDirection;
         }
 
         public override void ConnectInput(Direction direction, Machine machine)
         {
-            if (direction == inputDirection)
+            if (direction == conveyerType.inputDirection)
             {
                 if (node.inputNode == null)
                 {
@@ -55,7 +60,7 @@ namespace MachineSystem.Machines.Conveyer
 
         public override void DisconnectInput(Direction direction, Machine machine)
         {
-            if (direction == inputDirection)
+            if (direction == conveyerType.inputDirection)
             {
                 if (node.inputNode == null)
                 {
@@ -71,7 +76,7 @@ namespace MachineSystem.Machines.Conveyer
 
         public override ItemNode GetOutputNode(Direction direction)
         {
-            return direction == outputDirection ? node : null;
+            return direction == conveyerType.outputDirection ? node : null;
         }
 
         public override void Evaluate()
@@ -87,8 +92,8 @@ namespace MachineSystem.Machines.Conveyer
         [ContextMenu("Print Item")]
         public void PrintItem()
         {
-            Item item = node.item;
-            Debug.Log(item!=null ? item.ToString() : "No Item");
+            ItemInstance itemInstance = node.itemInstance;
+            Debug.Log(itemInstance!=null ? itemInstance.item.ToString() : "No Item");
         }
 
         public void OnDrawGizmos()
