@@ -632,7 +632,7 @@ MonoBehaviour:
   chunkSize: {x: 16, y: 16, z: 16}
   terrainMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   initialChunkMin: {x: -2, y: -4, z: -2}
   initialChunkMax: {x: 2, y: 0, z: 2}
 --- !u!4 &1530414846

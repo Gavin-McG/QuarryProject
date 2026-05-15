@@ -46,6 +46,11 @@ namespace Terrain
         {
             public TerrainChunk chunk;
             public NativeArray<int> blockIndex;
+
+            ~ChunkData()
+            {
+                blockIndex.Dispose();
+            }
         }
 
         private readonly Dictionary<ChunkCoord, ChunkData> chunks = new();
@@ -76,6 +81,7 @@ namespace Terrain
 
                 // Update chunk
                 pair.Value.chunk.UpdateTerrain(this, chunkData, chunkSize);
+                pair.Value.blockIndex.Dispose();
                 pair.Value.blockIndex = chunkData;
             }
         }
@@ -221,7 +227,7 @@ namespace Terrain
 
             ChunkPosition chunkPosition = GetChunkPosition(position);
             int index = chunkPosition.x + (chunkPosition.y * chunkSize.x) + (chunkPosition.z * chunkSize.x * chunkSize.y);
-            chunkData.blockIndex[index] = block.Index;
+            chunkData.blockIndex[index] = block?.Index ?? -1;
 
             if (regenerateMesh) {
                 chunkData.chunk.UpdateTerrain(this, chunkData.blockIndex, chunkSize);

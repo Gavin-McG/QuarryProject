@@ -10,7 +10,7 @@ namespace Terrain
         private static BlockType[] blocks;
         private static Texture2D blockAtlas;
         
-        private static NativeArray<BlockType.BlockTypeInfo> blockInfos;
+        public static NativeArray<BlockType.BlockTypeInfo> blockInfos;
 
         private static BlockType[] GetBlockTypes()
         {
