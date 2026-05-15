@@ -4,6 +4,8 @@ namespace Terrain.Blocks
 {
     public abstract class BlockType : ScriptableObject
     {
+        [SerializeField] public string blockName;
+        
         public abstract Sprite GetSprite(Direction direction);
         
         public int Index { get; set; }

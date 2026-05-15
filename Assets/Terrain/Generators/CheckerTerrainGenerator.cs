@@ -7,7 +7,7 @@ namespace Terrain.Generators
     /// <summary>
     /// The most simple Terrain Generator. Create a solid rectangle of a single block
     /// </summary>
-    [CreateAssetMenu(fileName = "SolidTerrainGenerator", menuName = "Block Terrain/Generator/Checker Terrain")]
+    [CreateAssetMenu(fileName = "SolidTerrainGenerator", menuName = "Scriptable Objects/Terrain Generator/Checker Terrain")]
     public class CheckerTerrainGenerator : TerrainGenerator
     {
         [SerializeField] private BlockType block1;

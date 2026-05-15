@@ -628,7 +628,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TerrainManager
   chunkPrefab: {fileID: 2748482532923467917, guid: 0dee2e933d5ed9a4a826ce45d3eab7dd, type: 3}
-  generator: {fileID: 11400000, guid: b7d4db6e9a652054da7f68b6cddc6631, type: 2}
+  generator: {fileID: 11400000, guid: 5df91b3fc2384d74fbe5bc90d77bacaf, type: 2}
   chunkSize: {x: 16, y: 16, z: 16}
   terrainMask:
     serializedVersion: 2
