@@ -1,11 +1,24 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-namespace MachineSystem
+namespace Terrain
 {
     public enum Direction { Up, Down, Left, Right, Forward, Back };
 
     public static class DirectionUtility
     {
+
+        public static IEnumerable<Direction> GetDirections()
+        {
+            yield return Direction.Up;
+            yield return Direction.Down;
+            yield return Direction.Left;
+            yield return Direction.Right;
+            yield return Direction.Forward;
+            yield return Direction.Back;
+        }
+        
         public static Direction Opposite(Direction direction) => direction switch
         {
             Direction.Up => Direction.Down,

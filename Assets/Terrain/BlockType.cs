@@ -6,20 +6,25 @@ namespace Terrain
     public class BlockType : ScriptableObject
     {
         [SerializeField] public string blockName;
-        [SerializeField] public Sprite sprite;
+        [SerializeField] private Sprite sprite;
+        
+        public Sprite GetSprite(Direction direction) => sprite;
 
         public int Index { get; set; }
-        public Rect UVs { get; set; }
 
-        public struct BlockTypeInfo
+        public struct BlockFaceData
         {
             public float uMin, uMax, vMin, vMax;
         }
-        
-        public BlockTypeInfo Info => new BlockTypeInfo()
+
+        public struct BlockTypeInfo
         {
-            uMin = UVs.xMin, uMax = UVs.xMax,
-            vMin = UVs.yMin, vMax = UVs.yMax,
-        };
+            public BlockFaceData upFace;
+            public BlockFaceData downFace;
+            public BlockFaceData leftFace;
+            public BlockFaceData rightFace;
+            public BlockFaceData forwardFace;
+            public BlockFaceData backFace;
+        }
     }
 }

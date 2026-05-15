@@ -185,9 +185,7 @@ namespace Terrain
             int z = index / (xSize * ySize);
 
             Vector3 pos = new Vector3(x, y, z);
-
-            BlockType.BlockTypeInfo info = blockInfo[blockIndex];
-
+            
             // Cache locals to avoid capturing 'this'
             int localXSize = xSize;
             int localYSize = ySize;
@@ -198,6 +196,7 @@ namespace Terrain
             // +Z
             TryAddFace(
                 0, 0, 1,
+                blockInfo[blockIndex].forwardFace,
                 Vector3.forward,
                 new Vector3(0, 0, 1),
                 new Vector3(1, 0, 1),
@@ -208,6 +207,7 @@ namespace Terrain
             // -Z
             TryAddFace(
                 0, 0, -1,
+                blockInfo[blockIndex].backFace,
                 Vector3.back,
                 new Vector3(1, 0, 0),
                 new Vector3(0, 0, 0),
@@ -218,6 +218,7 @@ namespace Terrain
             // -X
             TryAddFace(
                 -1, 0, 0,
+                blockInfo[blockIndex].leftFace,
                 Vector3.left,
                 new Vector3(0, 0, 0),
                 new Vector3(0, 0, 1),
@@ -228,6 +229,7 @@ namespace Terrain
             // +X
             TryAddFace(
                 1, 0, 0,
+                blockInfo[blockIndex].rightFace,
                 Vector3.right,
                 new Vector3(1, 0, 1),
                 new Vector3(1, 0, 0),
@@ -238,6 +240,7 @@ namespace Terrain
             // +Y
             TryAddFace(
                 0, 1, 0,
+                blockInfo[blockIndex].upFace,
                 Vector3.up,
                 new Vector3(0, 1, 1),
                 new Vector3(1, 1, 1),
@@ -248,6 +251,7 @@ namespace Terrain
             // -Y
             TryAddFace(
                 0, -1, 0,
+                blockInfo[blockIndex].downFace,
                 Vector3.down,
                 new Vector3(0, 0, 0),
                 new Vector3(1, 0, 0),
@@ -259,6 +263,7 @@ namespace Terrain
                 int dx,
                 int dy,
                 int dz,
+                BlockType.BlockFaceData faceData,
                 Vector3 normal,
                 Vector3 v0,
                 Vector3 v1,
@@ -278,10 +283,11 @@ namespace Terrain
                 if (neighborIndex != -1 && localBlockIndexes[neighborIndex] != -1)
                     return;
 
-                AddFace(normal, v0, v1, v2, v3);
+                AddFace(faceData, normal, v0, v1, v2, v3);
             }
 
             void AddFace(
+                BlockType.BlockFaceData faceData,
                 Vector3 normal,
                 Vector3 v0,
                 Vector3 v1,
@@ -292,28 +298,28 @@ namespace Terrain
                 {
                     position = pos + v0,
                     normal = normal,
-                    uv = new Vector2(info.uMin, info.vMin)
+                    uv = new Vector2(faceData.uMin, faceData.vMin)
                 };
 
                 vertices[currentVertex + 1] = new TerrainVertex
                 {
                     position = pos + v1,
                     normal = normal,
-                    uv = new Vector2(info.uMax, info.vMin)
+                    uv = new Vector2(faceData.uMax, faceData.vMin)
                 };
 
                 vertices[currentVertex + 2] = new TerrainVertex
                 {
                     position = pos + v2,
                     normal = normal,
-                    uv = new Vector2(info.uMax, info.vMax)
+                    uv = new Vector2(faceData.uMax, faceData.vMax)
                 };
 
                 vertices[currentVertex + 3] = new TerrainVertex
                 {
                     position = pos + v3,
                     normal = normal,
-                    uv = new Vector2(info.uMin, info.vMax)
+                    uv = new Vector2(faceData.uMin, faceData.vMax)
                 };
 
                 indices[currentIndex + 0] = currentVertex + 0;
