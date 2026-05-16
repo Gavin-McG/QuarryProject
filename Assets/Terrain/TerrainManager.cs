@@ -254,29 +254,6 @@ namespace Terrain
             }
         }
 
-        public TerrainHoverInfo GetHoverInfo()
-        {
-            //TODO cache per-frame raycast result
-            RaycastHit hit;
-            if (RayCastTerrain(out hit))
-            {
-                // Mouse over terrain
-                return new TerrainHoverInfo()
-                {
-                    overTerrain = true,
-                    position = GetBlockPosition(hit.point - 0.2f * hit.normal),
-                    direction = GetSurfaceDirection(hit.normal),
-                };
-            }
-            // Mouse not over terrain
-            return new TerrainHoverInfo()
-            {
-                overTerrain = false,
-                position = Vector3Int.zero,
-                direction = SurfaceDirection.Up,
-            };
-        }
-
         public void RegenerateDirtyChunks()
         {
             foreach (var chunkCoord in dirtyChunks)
@@ -298,44 +275,55 @@ namespace Terrain
         public static readonly UnityEvent<TerrainHoverInfo> TerrainReleasedLeft = new();
         public static readonly UnityEvent<TerrainHoverInfo> TerrainReleasedRight = new();
 
-        // Left click begins being pressed
-        public void ReceiveLeftPress(RaycastHit hit)
+        public Vector3Int GetHitBlock(RaycastHit hit)
         {
-            Vector3 position = hit.point - hit.normal * 0.2f; //ensure position inside block
+            Vector3 position = hit.point - hit.normal * 0.02f; //ensure position inside block
             Vector3Int blockPosition = GetBlockPosition(position);
-            
+            return blockPosition;
+        }
+
+        // Left click begins being pressed
+        public void LeftButtonPressed(RaycastHit hit)
+        {
             TerrainPressedLeft.Invoke(new TerrainHoverInfo()
             {
                 overTerrain = true,
-                position = blockPosition,
+                position = GetHitBlock(hit),
                 direction = GetSurfaceDirection(hit.normal)
             });
         }
         
         // Left click is released
-        public void ReleaseLeftPress()
+        public void LeftButtonReleased(RaycastHit hit)
         {
-            TerrainReleasedLeft.Invoke(GetHoverInfo());
+            TerrainReleasedLeft.Invoke(new TerrainHoverInfo()
+            {
+                overTerrain = true,
+                position = GetHitBlock(hit),
+                direction = GetSurfaceDirection(hit.normal)
+            });
         }
 
         // Right click begins being pressed
-        public void ReceiveRightPress(RaycastHit hit)
+        public void RightButtonPressed(RaycastHit hit)
         {
-            Vector3 position = hit.point - hit.normal * 0.2f; //ensure position inside block
-            Vector3Int blockPosition = GetBlockPosition(position);
-            
             TerrainPressedRight.Invoke(new TerrainHoverInfo()
             {
                 overTerrain = true,
-                position = blockPosition,
+                position = GetHitBlock(hit),
                 direction = GetSurfaceDirection(hit.normal)
             });
         }
 
         // Right click is released
-        public void ReleaseRightPress()
+        public void RightButtonReleased(RaycastHit hit)
         {
-            TerrainReleasedRight.Invoke(GetHoverInfo());
+            TerrainReleasedRight.Invoke(new TerrainHoverInfo()
+            {
+                overTerrain = true,
+                position = GetHitBlock(hit),
+                direction = GetSurfaceDirection(hit.normal)
+            });
         }
         
         #endregion

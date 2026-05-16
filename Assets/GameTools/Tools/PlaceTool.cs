@@ -17,6 +17,7 @@ namespace GameTools.Tools
 
         public override void Select()
         {
+            base.Select();
             terrainManager = GameObject.Find("TerrainManager")?.GetComponent<TerrainManager>();
         }
         
@@ -24,6 +25,7 @@ namespace GameTools.Tools
 
         public override void PressLeft(TerrainHoverInfo info)
         {
+            base.PressLeft(info);
             terrainManager?.SetBlock(info.FrontPosition, block);
         }
     }

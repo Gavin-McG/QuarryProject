@@ -10,23 +10,11 @@ namespace MachineSystem.Machines
     /// Abstract class representing an instance of a machine
     /// </summary>
     [Serializable]
-    public abstract class Machine : MonoBehaviour, IReceiveClickCast
+    public abstract class Machine : MonoBehaviour
     {
         [HideInInspector] public Vector3Int position;
         
         public abstract MachineType GetMachineType();
-        
-        public bool ReceiveLeftPress(RaycastHit hit)
-        {
-            Debug.Log("Clicked " + gameObject.name);
-            return true;
-        }
-
-        public bool ReceiveRightPress(RaycastHit hit)
-        {
-            Debug.Log("Clicked " + gameObject.name);
-            return true;
-        }
         
         /// Get the directions that the machine will accept input
         public abstract IEnumerable<Direction> GetInputDirections();

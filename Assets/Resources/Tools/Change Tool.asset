@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47fba955e80c48aaa7061bd9bc2c77bf, type: 3}
   m_Name: Change Tool
   m_EditorClassIdentifier: Assembly-CSharp::GameTools.Tools.ChangeTool
+  interactionLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
   toolSprite: {fileID: -1027447451, guid: 753a4a1accf68e54dbb69e11141691be, type: 3}
-  block: {fileID: 11400000, guid: 40ebd5c43a0e47d4dbeda9457f57902d, type: 2}
+  block: {fileID: 11400000, guid: 702c645d955289d418729018e963e6ae, type: 2}

@@ -451,26 +451,24 @@ namespace Terrain
         }
 
 
-        public bool ReceiveLeftPress(RaycastHit hit)
+        public void LeftButtonPressed(RaycastHit hit)
         {
-            manager.ReceiveLeftPress(hit);
-            return true;
+            manager.LeftButtonPressed(hit);
         }
         
-        public void ReleaseLeftPress()
+        public void LeftButtonReleased(RaycastHit hit)
         {
-            manager.ReleaseLeftPress();
+            manager.LeftButtonReleased(hit);
         }
 
-        public bool ReceiveRightPress(RaycastHit hit)
+        public void RightButtonPressed(RaycastHit hit)
         {
-            manager.ReceiveRightPress(hit);
-            return true;
+            manager.RightButtonPressed(hit);
         }
 
-        public void ReleaseRightPress()
+        public void RightButtonReleased(RaycastHit hit)
         {
-            manager.ReleaseRightPress();
+            manager.RightButtonReleased(hit);
         }
     }
 }

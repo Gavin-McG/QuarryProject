@@ -18,13 +18,14 @@ namespace GameTools.Tools
 
         public override void Select()
         {
+            base.Select();
             machineManager = GameObject.Find("MachineManager")?.GetComponent<MachineManager>();
         }
         
         // Left click - Place single block
         public override void PressLeft(TerrainHoverInfo info)
         {
-            Debug.Log("Attempting to place " + machineType.name);
+            base.PressLeft(info);
             machineManager?.PlaceMachine(info.FrontPosition, machineType);
         }
     }

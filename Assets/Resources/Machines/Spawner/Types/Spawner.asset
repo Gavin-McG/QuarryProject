@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: MachineSystem::MachineSystem.Machines.Spawner.SpawnerType
   block: {fileID: 11400000, guid: cbd6c44b2ab80944fbb0d4ee15b63904, type: 2}
   prefab: {fileID: 2075635013424332719, guid: 160ab63b874e9684ca35c91b03360a65, type: 3}
-  item:
+  itemQuantity:
     type: {fileID: 11400000, guid: 5fc7ce563c29a6d4ab68cfaa5e22653b, type: 2}
-    quantity: 1
+    quantity: 3

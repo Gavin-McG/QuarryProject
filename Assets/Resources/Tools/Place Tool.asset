@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c06156d093d4251854c69a075b5fa68, type: 3}
   m_Name: Place Tool
   m_EditorClassIdentifier: Assembly-CSharp::GameTools.Tools.PlaceTool
+  interactionLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
   toolSprite: {fileID: 1690421535, guid: 753a4a1accf68e54dbb69e11141691be, type: 3}
   block: {fileID: 11400000, guid: 9acf4c8b7644adc40a11a9fe9177f9aa, type: 2}

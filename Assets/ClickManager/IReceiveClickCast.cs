@@ -6,25 +6,33 @@ namespace ClickManager
     public interface IReceiveClickCast
     {
         /// <summary>
-        /// Called when a right click cast hits an object
+        /// Called if the right mouse button is pressed while hovering over the object
         /// </summary>
-        /// <returns>true if the object should consume the click</returns>
-        public bool ReceiveRightPress(RaycastHit hit) { return false; }
+        public void RightButtonPressed(RaycastHit hit) { }
         
         /// <summary>
-        /// Called after a captured right click when the mouse is released
+        /// Called if the right mouse button is released while hovering over the object
         /// </summary>
-        public void ReleaseRightPress() {}
+        public void RightButtonReleased(RaycastHit hit) {}
         
         /// <summary>
-        /// Called when a left click cast hits an object
+        /// Called if the right mouse button is released on the same object it was pressed
         /// </summary>
-        /// <returns>true if the object should consume the click</returns>
-        public bool ReceiveLeftPress(RaycastHit hit) { return false; }
+        public void RightButtonClicked(RaycastHit hit) {}
         
         /// <summary>
-        /// Called after a captured left click when the mouse is released
+        /// Called if the left mouse button is pressed while hovering over the object
         /// </summary>
-        public void ReleaseLeftPress() {}
+        public void LeftButtonPressed(RaycastHit hit) { }
+        
+        /// <summary>
+        /// Called if the left mouse button is released while hovering over the object
+        /// </summary>
+        public void LeftButtonReleased(RaycastHit hit) {}
+        
+        /// <summary>
+        /// Called if the left mouse button is released on the same object it was pressed
+        /// </summary>
+        public void LeftButtonClicked(RaycastHit hit) {}
     }
 }

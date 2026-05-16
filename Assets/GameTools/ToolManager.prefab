@@ -130,6 +130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameTools.ToolBar
   toolOptionElement: {fileID: 9197481963319205126, guid: f9bd0fb0c02ac6a45997374d739268ad, type: 3}
   tools:
+  - {fileID: 11400000, guid: 90d0c000c6125be44b262266f193452c, type: 2}
   - {fileID: 11400000, guid: 30020ccbaff6c0e4a825df28051362d1, type: 2}
   - {fileID: 11400000, guid: 818b7f2eb69060b42b95908b0be370e9, type: 2}
   - {fileID: 11400000, guid: d97476d5b9b257446b5094f7bf74e71a, type: 2}

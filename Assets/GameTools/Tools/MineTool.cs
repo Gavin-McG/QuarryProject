@@ -16,6 +16,7 @@ namespace GameTools.Tools
 
         public override void Select()
         {
+            base.Select();
             terrainManager = GameObject.Find("TerrainManager")?.GetComponent<TerrainManager>();
         }
         
@@ -23,6 +24,7 @@ namespace GameTools.Tools
 
         public override void PressLeft(TerrainHoverInfo info)
         {
+            base.PressLeft(info);
             terrainManager?.SetBlock(info.BackPosition, null);
         }
 
@@ -30,11 +32,13 @@ namespace GameTools.Tools
         
         public override void PressRight(TerrainHoverInfo info)
         {
+            base.PressRight(info);
             dragStartPosition = info.BackPosition;
         }
 
         public override void ReleaseRight(TerrainHoverInfo info)
         {
+            base.ReleaseRight(info);
             if (!info.overTerrain) return;
             
             Vector3Int dragEndPosition = info.BackPosition;
