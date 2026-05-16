@@ -1,5 +1,6 @@
 ﻿using System;
 using GameTools.Tools;
+using ItemSystem;
 using ManagerSystem;
 using Terrain;
 using UnityEngine;
@@ -8,24 +9,34 @@ namespace GameTools
 {
     public class ToolManager : MonoBehaviour
     {
-        public static GameTool CurrentTool { get; private set; }
+        public static GameTool CurrentTool { get; private set; } = null;
         
         private TerrainManager terrainManager;
 
         private void OnEnable()
         {
-            TerrainManager.TerrainPressedLeft.AddListener(TerrainPressedLeft);
-            TerrainManager.TerrainReleasedLeft.AddListener(TerrainReleasedLeft);
-            TerrainManager.TerrainPressedRight.AddListener(TerrainPressedRight);
-            TerrainManager.TerrainReleasedRight.AddListener(TerrainReleasedRight);
+            TerrainManager.TerrainLeftButtonPressed.AddListener(TerrainLeftButtonPressed);
+            TerrainManager.TerrainLeftButtonReleased.AddListener(TerrainLeftButtonReleased);
+            TerrainManager.TerrainLeftButtonDragged.AddListener(TerrainLeftButtonDragged);
+            TerrainManager.TerrainRightButtonPressed.AddListener(TerrainRightButtonPressed);
+            TerrainManager.TerrainRightButtonReleased.AddListener(TerrainRightButtonReleased);
+            TerrainManager.TerrainRightButtonDragged.AddListener(TerrainRightButtonDragged);
+            
+            ItemInstance.ItemLeftButtonClicked.AddListener(ItemLeftButtonClicked);
+            ItemInstance.ItemRightButtonClicked.AddListener(ItemRightButtonClicked);
         }
 
         private void OnDisable()
         {
-            TerrainManager.TerrainPressedLeft.RemoveListener(TerrainPressedLeft);
-            TerrainManager.TerrainReleasedLeft.RemoveListener(TerrainReleasedLeft);
-            TerrainManager.TerrainPressedRight.RemoveListener(TerrainPressedRight);
-            TerrainManager.TerrainReleasedRight.RemoveListener(TerrainReleasedRight);
+            TerrainManager.TerrainLeftButtonPressed.RemoveListener(TerrainLeftButtonPressed);
+            TerrainManager.TerrainLeftButtonReleased.RemoveListener(TerrainLeftButtonReleased);
+            TerrainManager.TerrainLeftButtonDragged.RemoveListener(TerrainLeftButtonDragged);
+            TerrainManager.TerrainRightButtonPressed.RemoveListener(TerrainRightButtonPressed);
+            TerrainManager.TerrainRightButtonReleased.RemoveListener(TerrainRightButtonReleased);
+            TerrainManager.TerrainRightButtonDragged.RemoveListener(TerrainRightButtonDragged);
+            
+            ItemInstance.ItemLeftButtonClicked.RemoveListener(ItemLeftButtonClicked);
+            ItemInstance.ItemRightButtonClicked.RemoveListener(ItemRightButtonClicked);
         }
 
         public static void SetTool(GameTool tool)
@@ -35,24 +46,44 @@ namespace GameTools
             CurrentTool = tool;
         }
 
-        private void TerrainPressedLeft(TerrainHoverInfo info)
+        private void TerrainLeftButtonPressed(TerrainPointerInfo info)
         {
-            CurrentTool?.PressLeft(info);
+            CurrentTool?.TerrainLeftButtonPressed(info);
         }
 
-        private void TerrainReleasedLeft(TerrainHoverInfo info)
+        private void TerrainLeftButtonReleased(TerrainPointerInfo info)
         {
-            CurrentTool?.ReleaseLeft(info);
+            CurrentTool?.TerrainLeftButtonReleased(info);
+        }
+        
+        private void TerrainLeftButtonDragged(TerrainPointerInfo startInfo, TerrainPointerInfo endInfo)
+        {
+            CurrentTool?.TerrainLeftButtonDragged(startInfo, endInfo);
         }
 
-        private void TerrainPressedRight(TerrainHoverInfo info)
+        private void TerrainRightButtonPressed(TerrainPointerInfo info)
         {
-            CurrentTool?.PressRight(info);
+            CurrentTool?.TerrainLeftButtonPressed(info);
         }
 
-        private void TerrainReleasedRight(TerrainHoverInfo info)
+        private void TerrainRightButtonReleased(TerrainPointerInfo info)
         {
-            CurrentTool?.ReleaseRight(info);
+            CurrentTool?.TerrainRightButtonReleased(info);
+        }
+        
+        private void TerrainRightButtonDragged(TerrainPointerInfo startInfo, TerrainPointerInfo endInfo)
+        {
+            CurrentTool?.TerrainRightButtonDragged(startInfo, endInfo);
+        }
+
+        private void ItemLeftButtonClicked(ItemInstance item)
+        {
+            CurrentTool?.ItemLeftButtonClicked(item);
+        }
+
+        private void ItemRightButtonClicked(ItemInstance item)
+        {
+            CurrentTool?.ItemRightButtonClicked(item);
         }
     }
 }

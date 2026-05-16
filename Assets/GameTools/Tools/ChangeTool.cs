@@ -21,9 +21,9 @@ namespace GameTools.Tools
             terrainManager = GameObject.Find("TerrainManager")?.GetComponent<TerrainManager>();
         }
 
-        public override void PressLeft(TerrainHoverInfo info)
+        public override void TerrainLeftButtonPressed(TerrainPointerInfo info)
         {
-            base.PressLeft(info);
+            base.TerrainLeftButtonPressed(info);
             terrainManager?.SetBlock(info.BackPosition, block);
         }
     }

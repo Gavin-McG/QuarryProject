@@ -21,12 +21,28 @@ namespace GameTools.Tools
             terrainManager = GameObject.Find("TerrainManager")?.GetComponent<TerrainManager>();
         }
         
-        // Left click - Place single block
-
-        public override void PressLeft(TerrainHoverInfo info)
+        // Left Drag - Drag destroy area
+        
+        public override void TerrainLeftButtonDragged(TerrainPointerInfo startInfo, TerrainPointerInfo endInfo)
         {
-            base.PressLeft(info);
-            terrainManager?.SetBlock(info.FrontPosition, block);
+            base.TerrainRightButtonDragged(startInfo, endInfo);
+            
+            Vector3Int dragStartPosition = startInfo.FrontPosition;
+            Vector3Int dragEndPosition = endInfo.FrontPosition;
+            
+            int minX = Mathf.Min(dragStartPosition.x, dragEndPosition.x);
+            int minY = Mathf.Min(dragStartPosition.y, dragEndPosition.y);
+            int minZ = Mathf.Min(dragStartPosition.z, dragEndPosition.z);
+            int maxX = Mathf.Max(dragStartPosition.x, dragEndPosition.x);
+            int maxY = Mathf.Max(dragStartPosition.y, dragEndPosition.y);
+            int maxZ = Mathf.Max(dragStartPosition.z, dragEndPosition.z);
+            
+            for (int x = minX; x <= maxX; x++)
+            for (int y = minY; y <= maxY; y++)
+            for (int z = minZ; z <= maxZ; z++)
+                terrainManager.SetBlock(new Vector3Int(x, y, z), block, false);
+            
+            terrainManager.RegenerateDirtyChunks();
         }
     }
 }

@@ -55,7 +55,7 @@ namespace ClickManager
             if (buttonInfo.pressed)
             {
                 // Press Button
-                currentFocus.LeftButtonPressed(hit);
+                currentFocus?.LeftButtonPressed(hit);
                 currentLeftHover = currentFocus;
             }
             else if (currentFocus != null)
@@ -67,7 +67,7 @@ namespace ClickManager
                 }
                 
                 // Release Button
-                currentFocus.LeftButtonReleased(hit);
+                currentFocus.LeftButtonReleased(hit, currentLeftHover);
                 currentLeftHover = null;
             }
         }
@@ -83,20 +83,20 @@ namespace ClickManager
             if (buttonInfo.pressed)
             {
                 // Press Button
-                currentFocus.RightButtonPressed(hit);
-                currentLeftHover = currentFocus;
+                currentFocus?.RightButtonPressed(hit);
+                currentRightHover = currentFocus;
             }
             else if (currentFocus != null)
             {
                 // Click if hover and release are on same object
-                if (currentFocus == currentLeftHover)
+                if (currentFocus == currentRightHover)
                 {
                     currentFocus.RightButtonClicked(hit);
                 }
                 
                 // Release Button
-                currentFocus.RightButtonReleased(hit);
-                currentLeftHover = null;
+                currentFocus.RightButtonReleased(hit, currentRightHover);
+                currentRightHover = null;
             }
         }
 

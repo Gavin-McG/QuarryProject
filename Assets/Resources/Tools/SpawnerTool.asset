@@ -15,5 +15,5 @@ MonoBehaviour:
   interactionLayerMask:
     serializedVersion: 2
     m_Bits: 64
-  toolSprite: {fileID: 637695850, guid: 753a4a1accf68e54dbb69e11141691be, type: 3}
+  toolSprite: {fileID: -994797425, guid: 753a4a1accf68e54dbb69e11141691be, type: 3}
   machineType: {fileID: 11400000, guid: 448178285e56c244badcc7baf02db68f, type: 2}

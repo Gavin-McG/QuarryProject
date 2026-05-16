@@ -456,9 +456,9 @@ namespace Terrain
             manager.LeftButtonPressed(hit);
         }
         
-        public void LeftButtonReleased(RaycastHit hit)
+        public void LeftButtonReleased(RaycastHit hit, IReceiveClickCast pressedObject)
         {
-            manager.LeftButtonReleased(hit);
+            manager.LeftButtonReleased(hit, pressedObject);
         }
 
         public void RightButtonPressed(RaycastHit hit)
@@ -466,9 +466,9 @@ namespace Terrain
             manager.RightButtonPressed(hit);
         }
 
-        public void RightButtonReleased(RaycastHit hit)
+        public void RightButtonReleased(RaycastHit hit, IReceiveClickCast pressedObject)
         {
-            manager.RightButtonReleased(hit);
+            manager.RightButtonReleased(hit, pressedObject);
         }
     }
 }

@@ -33,5 +33,10 @@ namespace GameTools
         {
             ToolManager.SetTool(tool);
         }
+
+        public void RemoveOption()
+        {
+            toolOption.RemoveFromHierarchy();
+        }
     }
 }

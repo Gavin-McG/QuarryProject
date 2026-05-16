@@ -23,9 +23,9 @@ namespace GameTools.Tools
         }
         
         // Left click - Place single block
-        public override void PressLeft(TerrainHoverInfo info)
+        public override void TerrainLeftButtonPressed(TerrainPointerInfo info)
         {
-            base.PressLeft(info);
+            base.TerrainLeftButtonPressed(info);
             machineManager?.PlaceMachine(info.FrontPosition, machineType);
         }
     }

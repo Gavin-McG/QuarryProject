@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ClickManager;
 using Terrain.Blocks;
 using Terrain.Generators;
 using Unity.Collections;
@@ -13,9 +14,8 @@ namespace Terrain
 {
     public enum SurfaceDirection { Up, Down, Left, Right, Forward, Back }
 
-    public struct TerrainHoverInfo
+    public struct TerrainPointerInfo
     {
-        public bool overTerrain;
         public Vector3Int position;
         public SurfaceDirection direction;
 
@@ -270,10 +270,16 @@ namespace Terrain
         #region Mouse Interactions
         
         // Mouse methods
-        public static readonly UnityEvent<TerrainHoverInfo> TerrainPressedLeft = new();
-        public static readonly UnityEvent<TerrainHoverInfo> TerrainPressedRight = new();
-        public static readonly UnityEvent<TerrainHoverInfo> TerrainReleasedLeft = new();
-        public static readonly UnityEvent<TerrainHoverInfo> TerrainReleasedRight = new();
+        public static readonly UnityEvent<TerrainPointerInfo> TerrainLeftButtonPressed = new();
+        public static readonly UnityEvent<TerrainPointerInfo> TerrainLeftButtonReleased = new();
+        public static readonly UnityEvent<TerrainPointerInfo, TerrainPointerInfo> TerrainLeftButtonDragged = new();
+            
+        public static readonly UnityEvent<TerrainPointerInfo> TerrainRightButtonPressed = new();
+        public static readonly UnityEvent<TerrainPointerInfo> TerrainRightButtonReleased = new();
+        public static readonly UnityEvent<TerrainPointerInfo, TerrainPointerInfo> TerrainRightButtonDragged = new();
+
+        private TerrainPointerInfo leftButtonStartInfo;
+        private TerrainPointerInfo rightButtonStartInfo;
 
         public Vector3Int GetHitBlock(RaycastHit hit)
         {
@@ -285,45 +291,65 @@ namespace Terrain
         // Left click begins being pressed
         public void LeftButtonPressed(RaycastHit hit)
         {
-            TerrainPressedLeft.Invoke(new TerrainHoverInfo()
+            leftButtonStartInfo = new TerrainPointerInfo()
             {
-                overTerrain = true,
                 position = GetHitBlock(hit),
                 direction = GetSurfaceDirection(hit.normal)
-            });
+            };
+            
+            // Publish press event
+            TerrainLeftButtonPressed.Invoke(leftButtonStartInfo);
         }
         
         // Left click is released
-        public void LeftButtonReleased(RaycastHit hit)
+        public void LeftButtonReleased(RaycastHit hit, IReceiveClickCast pressedObject)
         {
-            TerrainReleasedLeft.Invoke(new TerrainHoverInfo()
+            var leftButtonEndInfo = new TerrainPointerInfo()
             {
-                overTerrain = true,
                 position = GetHitBlock(hit),
                 direction = GetSurfaceDirection(hit.normal)
-            });
+            };
+            
+            // Publish release event
+            TerrainLeftButtonReleased.Invoke(leftButtonEndInfo);
+            
+            // Check for Dragged event
+            if (pressedObject is TerrainChunk)
+            {
+                TerrainLeftButtonDragged.Invoke(leftButtonStartInfo, leftButtonEndInfo);
+            }
         }
 
         // Right click begins being pressed
         public void RightButtonPressed(RaycastHit hit)
         {
-            TerrainPressedRight.Invoke(new TerrainHoverInfo()
+            rightButtonStartInfo = new TerrainPointerInfo()
             {
-                overTerrain = true,
                 position = GetHitBlock(hit),
                 direction = GetSurfaceDirection(hit.normal)
-            });
+            };
+            
+            // Publish press event
+            TerrainRightButtonPressed.Invoke(rightButtonStartInfo);
         }
 
         // Right click is released
-        public void RightButtonReleased(RaycastHit hit)
+        public void RightButtonReleased(RaycastHit hit, IReceiveClickCast pressedObject)
         {
-            TerrainReleasedRight.Invoke(new TerrainHoverInfo()
+            var rightButtonEndInfo = new TerrainPointerInfo()
             {
-                overTerrain = true,
                 position = GetHitBlock(hit),
                 direction = GetSurfaceDirection(hit.normal)
-            });
+            };
+            
+            // Publish release event
+            TerrainRightButtonReleased.Invoke(rightButtonEndInfo);
+            
+            // Check for Dragged event
+            if (pressedObject is TerrainChunk)
+            {
+                TerrainRightButtonDragged.Invoke(rightButtonStartInfo, rightButtonEndInfo);
+            }
         }
         
         #endregion

@@ -14,14 +14,16 @@ namespace GameTools
         [SerializeField] private VisualTreeAsset toolOptionElement;
         [SerializeField] private List<GameTool> tools;
         
-        private List<ToolOption> toolOptions = new List<ToolOption>();
+        private readonly List<ToolOption> toolOptions = new List<ToolOption>();
         
-        private void Start()
+        private void OnEnable()
         {
+            // Get tool container element
             UIDocument uidoc = GetComponent<UIDocument>();
             VisualElement root = uidoc.rootVisualElement;
-
             VisualElement toolContainer = root.Q<VisualElement>(toolContainerElement);
+            
+            // Add tools to container
             foreach (GameTool tool in tools)
             {
                 // Create new visual Element for tool
@@ -32,6 +34,16 @@ namespace GameTools
                 ToolOption newOption = new ToolOption(tool, toolButton);
                 toolOptions.Add(newOption);
             }
+        }
+
+        private void OnDisable()
+        {
+            // Remove tools
+            foreach (ToolOption option in toolOptions)
+            {
+                option.RemoveOption();
+            }
+            toolOptions.Clear();
         }
     }
 }
