@@ -1,11 +1,11 @@
-﻿using Terrain;
+﻿using ManagerSystem;
+using Terrain;
 using Terrain.Blocks;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace GameTools.Tools
 {
-    [CreateAssetMenu(fileName = "GameTool", menuName = "Scriptable Objects/Tools/Change Tool")]
+    [CreateAssetMenu(fileName = "Change Tool", menuName = "Scriptable Objects/Tools/Change Tool")]
     public class ChangeTool : GameTool
     {
         [SerializeField] private Sprite toolSprite;
@@ -18,7 +18,7 @@ namespace GameTools.Tools
         public override void Select()
         {
             base.Select();
-            terrainManager = GameObject.Find("TerrainManager")?.GetComponent<TerrainManager>();
+            terrainManager = Managers.GetManager<TerrainManager>();
         }
 
         public override void TerrainLeftButtonPressed(TerrainPointerInfo info)

@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c28b7b7d477d4efdb020f5eb0efb20d8, type: 3}
-  m_Name: Conveyer Block BF
+  m_Name: Conveyer Straight
   m_EditorClassIdentifier: Terrain::Terrain.Blocks.SixSidedBlockType
-  blockName: Conveyer LR
-  topSprite: {fileID: -1657480489, guid: c27a15b387a595b499a74294648d74b6, type: 3}
+  blockName: Conveyer Straight
+  topSprite: {fileID: 512200518, guid: c27a15b387a595b499a74294648d74b6, type: 3}
   bottomSprite: {fileID: -2010463830, guid: c27a15b387a595b499a74294648d74b6, type: 3}
-  leftSprite: {fileID: 181346839, guid: c27a15b387a595b499a74294648d74b6, type: 3}
-  rightSprite: {fileID: 181346839, guid: c27a15b387a595b499a74294648d74b6, type: 3}
-  frontSprite: {fileID: -214162432, guid: c27a15b387a595b499a74294648d74b6, type: 3}
-  backSprite: {fileID: -214162432, guid: c27a15b387a595b499a74294648d74b6, type: 3}
+  leftSprite: {fileID: 116274834, guid: c27a15b387a595b499a74294648d74b6, type: 3}
+  rightSprite: {fileID: 116274834, guid: c27a15b387a595b499a74294648d74b6, type: 3}
+  frontSprite: {fileID: 653121556, guid: c27a15b387a595b499a74294648d74b6, type: 3}
+  backSprite: {fileID: 653121556, guid: c27a15b387a595b499a74294648d74b6, type: 3}

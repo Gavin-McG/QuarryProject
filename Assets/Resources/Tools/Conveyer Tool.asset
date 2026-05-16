@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 344478c19f9a4b42a4a04065523b2ea7, type: 3}
-  m_Name: ConveyerTool
-  m_EditorClassIdentifier: Assembly-CSharp::GameTools.Tools.MachineTool
+  m_Script: {fileID: 11500000, guid: 1b230f90a61545619d099fc3553023a6, type: 3}
+  m_Name: Conveyer Tool
+  m_EditorClassIdentifier: Assembly-CSharp::GameTools.Tools.ConveyerTool
   interactionLayerMask:
     serializedVersion: 2
     m_Bits: 64
   toolSprite: {fileID: 637695850, guid: 753a4a1accf68e54dbb69e11141691be, type: 3}
-  machineType: {fileID: 11400000, guid: 6fdd93ea90815ae41a30163e0c841610, type: 2}
+  conveyerSet: {fileID: 11400000, guid: 7cb0b8ad739b88346af9b76c7a147b37, type: 2}

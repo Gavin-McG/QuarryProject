@@ -8,6 +8,8 @@ namespace MachineSystem.Machines.Conveyer
     public class Conveyer : Machine
     {
         [SerializeField, HideInInspector] public ConveyerType conveyerType;
+        [SerializeField] public Direction inputDirection;
+        [SerializeField] public Direction outputDirection;
         [SerializeReference, HideInInspector] public ItemNode node;
 
         public void Awake()
@@ -35,17 +37,17 @@ namespace MachineSystem.Machines.Conveyer
 
         public override IEnumerable<Direction> GetInputDirections()
         {
-            yield return conveyerType.inputDirection;
+            yield return inputDirection;
         }
 
         public override IEnumerable<Direction> GetOutputDirections()
         {
-            yield return conveyerType.outputDirection;
+            yield return outputDirection;
         }
 
         public override void ConnectInput(Direction direction, Machine machine)
         {
-            if (direction == conveyerType.inputDirection)
+            if (direction == inputDirection)
             {
                 if (node.inputNode == null)
                 {
@@ -60,7 +62,7 @@ namespace MachineSystem.Machines.Conveyer
 
         public override void DisconnectInput(Direction direction, Machine machine)
         {
-            if (direction == conveyerType.inputDirection)
+            if (direction == inputDirection)
             {
                 if (node.inputNode == null)
                 {
@@ -76,7 +78,7 @@ namespace MachineSystem.Machines.Conveyer
 
         public override ItemNode GetOutputNode(Direction direction)
         {
-            return direction == conveyerType.outputDirection ? node : null;
+            return direction == outputDirection ? node : null;
         }
 
         public override void Evaluate()

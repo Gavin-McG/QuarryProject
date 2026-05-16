@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ClickManager;
 using Terrain.Blocks;
 using Unity.Burst;
@@ -32,7 +33,7 @@ namespace Terrain
     public struct TerrainCountsJob : IJobFor
     {
         public int xSize, ySize, zSize;
-        [ReadOnly] public NativeArray<int> blockIndexes;
+        [ReadOnly] public NativeArray<BlockInfo> terrainData;
 
         public NativeArray<int> vertexCounts;
         public NativeArray<int> indexCounts;
@@ -49,7 +50,7 @@ namespace Terrain
         {
             int checkIndex = PositionToIndex(x,y,z);
             
-            if (checkIndex == -1 || blockIndexes[checkIndex] == -1) 
+            if (checkIndex == -1 || terrainData[checkIndex].blockIndex == -1) 
                 CountFace(index);
         }
 
@@ -66,7 +67,7 @@ namespace Terrain
             indexCounts[index] = 0;
             
             // Skip empty block
-            if (blockIndexes[index] == -1) return;
+            if (terrainData[index].blockIndex == -1) return;
             
             // Get position from index
             int x = index % xSize;
@@ -137,13 +138,13 @@ namespace Terrain
     /// <summary>
     /// Populate the Vertex and index arrays of the MeshData
     /// </summary>
-    [BurstCompile]
+    //[BurstCompile]
     public struct TerrainGenerateMeshJob : IJobFor
     {
         public int xSize, ySize, zSize;
 
-        [ReadOnly] public NativeArray<int> blockIndexes;
-        [ReadOnly] public NativeArray<BlockType.BlockTypeInfo> blockInfo;
+        [ReadOnly] public NativeArray<BlockInfo> terrainData;
+        [ReadOnly] public NativeArray<BlockType.BlockTypeInfo> blockTypes;
         [ReadOnly] public NativeArray<int> vertexOffsets;
         [ReadOnly] public NativeArray<int> indexOffsets;
 
@@ -165,7 +166,8 @@ namespace Terrain
 
         public void Execute(int index)
         {
-            int blockIndex = blockIndexes[index];
+            int blockIndex = terrainData[index].blockIndex;
+            Rotation blockRotation = terrainData[index].rotation;
 
             // Skip air
             if (blockIndex == -1)
@@ -192,12 +194,13 @@ namespace Terrain
             int localYSize = ySize;
             int localZSize = zSize;
 
-            NativeArray<int> localBlockIndexes = blockIndexes;
+            NativeArray<BlockInfo> localBlockIndexes = terrainData;
 
             // +Z
             TryAddFace(
                 0, 0, 1,
-                blockInfo[blockIndex].forwardFace,
+                blockTypes[blockIndex].GetFace(Direction.Forward, blockRotation),
+                Rotation.Degrees0,
                 Vector3.forward,
                 new Vector3(0, 0, 1),
                 new Vector3(1, 0, 1),
@@ -208,7 +211,8 @@ namespace Terrain
             // -Z
             TryAddFace(
                 0, 0, -1,
-                blockInfo[blockIndex].backFace,
+                blockTypes[blockIndex].GetFace(Direction.Back, blockRotation),
+                Rotation.Degrees0,
                 Vector3.back,
                 new Vector3(1, 0, 0),
                 new Vector3(0, 0, 0),
@@ -219,7 +223,8 @@ namespace Terrain
             // -X
             TryAddFace(
                 -1, 0, 0,
-                blockInfo[blockIndex].leftFace,
+                blockTypes[blockIndex].GetFace(Direction.Left, blockRotation),
+                Rotation.Degrees0,
                 Vector3.left,
                 new Vector3(0, 0, 0),
                 new Vector3(0, 0, 1),
@@ -230,7 +235,8 @@ namespace Terrain
             // +X
             TryAddFace(
                 1, 0, 0,
-                blockInfo[blockIndex].rightFace,
+                blockTypes[blockIndex].GetFace(Direction.Right, blockRotation),
+                Rotation.Degrees0,
                 Vector3.right,
                 new Vector3(1, 0, 1),
                 new Vector3(1, 0, 0),
@@ -241,7 +247,8 @@ namespace Terrain
             // +Y
             TryAddFace(
                 0, 1, 0,
-                blockInfo[blockIndex].upFace,
+                blockTypes[blockIndex].GetFace(Direction.Up, blockRotation),
+                blockRotation,
                 Vector3.up,
                 new Vector3(0, 1, 1),
                 new Vector3(1, 1, 1),
@@ -252,7 +259,8 @@ namespace Terrain
             // -Y
             TryAddFace(
                 0, -1, 0,
-                blockInfo[blockIndex].downFace,
+                blockTypes[blockIndex].GetFace(Direction.Down, blockRotation),
+                blockRotation,
                 Vector3.down,
                 new Vector3(0, 0, 0),
                 new Vector3(1, 0, 0),
@@ -265,6 +273,7 @@ namespace Terrain
                 int dy,
                 int dz,
                 BlockType.BlockFaceData faceData,
+                Rotation rotation,
                 Vector3 normal,
                 Vector3 v0,
                 Vector3 v1,
@@ -281,46 +290,57 @@ namespace Terrain
                 );
 
                 // Skip hidden faces
-                if (neighborIndex != -1 && localBlockIndexes[neighborIndex] != -1)
+                if (neighborIndex != -1 && localBlockIndexes[neighborIndex].blockIndex != -1)
                     return;
 
-                AddFace(faceData, normal, v0, v1, v2, v3);
+                AddFace(faceData, rotation, normal, v0, v1, v2, v3);
             }
 
             void AddFace(
                 BlockType.BlockFaceData faceData,
+                Rotation rotation,
                 Vector3 normal,
                 Vector3 v0,
                 Vector3 v1,
                 Vector3 v2,
                 Vector3 v3)
             {
+                int rotationIndex = RotationUtility.GetRotationIndex(rotation);
+
+                Span<Vector2> uvs = stackalloc Vector2[4]
+                {
+                    new(faceData.uMin, faceData.vMin), // 0
+                    new(faceData.uMax, faceData.vMin), // 1
+                    new(faceData.uMax, faceData.vMax), // 2
+                    new(faceData.uMin, faceData.vMax)  // 3
+                };
+                
                 vertices[currentVertex + 0] = new TerrainVertex
                 {
                     position = pos + v0,
                     normal = normal,
-                    uv = new Vector2(faceData.uMin, faceData.vMin)
+                    uv = uvs[(0 + rotationIndex) & 3]
                 };
 
                 vertices[currentVertex + 1] = new TerrainVertex
                 {
                     position = pos + v1,
                     normal = normal,
-                    uv = new Vector2(faceData.uMax, faceData.vMin)
+                    uv = uvs[(1 + rotationIndex) & 3]
                 };
 
                 vertices[currentVertex + 2] = new TerrainVertex
                 {
                     position = pos + v2,
                     normal = normal,
-                    uv = new Vector2(faceData.uMax, faceData.vMax)
+                    uv = uvs[(2 + rotationIndex) & 3]
                 };
 
                 vertices[currentVertex + 3] = new TerrainVertex
                 {
                     position = pos + v3,
                     normal = normal,
-                    uv = new Vector2(faceData.uMin, faceData.vMax)
+                    uv = uvs[(3 + rotationIndex) & 3]
                 };
 
                 indices[currentIndex + 0] = currentVertex + 0;
@@ -346,7 +366,7 @@ namespace Terrain
 
         private TerrainManager manager;
 
-        public void UpdateTerrain(TerrainManager terrainManager, NativeArray<int> terrain, Vector3Int size)
+        public void UpdateTerrain(TerrainManager terrainManager, NativeArray<BlockInfo> terrain, Vector3Int size)
         {
             manager = terrainManager;
 
@@ -366,7 +386,7 @@ namespace Terrain
         }
 
         //TODO Don't generate faces based on neighboring chunks
-        private Mesh GenerateTerrainMesh(NativeArray<int> terrain, Vector3Int size)
+        private Mesh GenerateTerrainMesh(NativeArray<BlockInfo> terrain, Vector3Int size)
         {
             float startTime = Time.realtimeSinceStartup;
             
@@ -389,7 +409,7 @@ namespace Terrain
                 xSize = size.x,
                 ySize = size.y,
                 zSize = size.z,
-                blockIndexes =  terrain,
+                terrainData =  terrain,
                 vertexCounts = vertexCounts,
                 indexCounts = indexCounts,
             };
@@ -415,8 +435,8 @@ namespace Terrain
                 xSize = size.x,
                 ySize = size.y,
                 zSize = size.z,
-                blockIndexes = terrain,
-                blockInfo = BlockData.blockInfos,
+                terrainData = terrain,
+                blockTypes = BlockData.blockInfos,
                 vertexOffsets = vertexOffsets,
                 indexOffsets = indexOffsets,
                 meshData = meshData,

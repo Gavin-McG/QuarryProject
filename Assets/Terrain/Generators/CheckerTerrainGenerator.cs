@@ -13,11 +13,11 @@ namespace Terrain.Generators
         [SerializeField] private BlockType block1;
         [SerializeField] private BlockType block2;
 
-        public override NativeArray<int> GenerateTerrain(Vector3Int position, Vector3Int size)
+        public override NativeArray<BlockInfo> GenerateTerrain(Vector3Int position, Vector3Int size)
         {
             // Create the multidimensional array
             int totalSize = size.x * size.y * size.z;
-            NativeArray<int> terrain = new NativeArray<int>(totalSize, Allocator.Persistent);
+            NativeArray<BlockInfo> terrain = new(totalSize, Allocator.Persistent);
 
             // Populate the array with the block type
             int posOffset = position.x + position.y + position.z;
@@ -30,8 +30,11 @@ namespace Terrain.Generators
                 
                 int checkerFactor = x + y + z + posOffset;
                 BlockType block = (checkerFactor % 2 == 0) ? block1 : block2;
-                
-                terrain[index] = block.Index;
+
+                terrain[index] = new BlockInfo()
+                {
+                    blockIndex = block.Index
+                };
             }
                 
 

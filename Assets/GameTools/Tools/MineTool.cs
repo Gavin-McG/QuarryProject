@@ -1,9 +1,10 @@
-﻿using Terrain;
+﻿using ManagerSystem;
+using Terrain;
 using UnityEngine;
 
 namespace GameTools.Tools
 {
-    [CreateAssetMenu(fileName = "GameTool", menuName = "Scriptable Objects/Tools/Mine Tool")]
+    [CreateAssetMenu(fileName = "Mine Tool", menuName = "Scriptable Objects/Tools/Mine Tool")]
     public class MineTool : GameTool
     {
         [SerializeField] private Sprite toolSprite;
@@ -15,7 +16,7 @@ namespace GameTools.Tools
         public override void Select()
         {
             base.Select();
-            terrainManager = GameObject.Find("TerrainManager")?.GetComponent<TerrainManager>();
+            terrainManager = Managers.GetManager<TerrainManager>();
         }
         
         // Left Drag - Drag destroy area

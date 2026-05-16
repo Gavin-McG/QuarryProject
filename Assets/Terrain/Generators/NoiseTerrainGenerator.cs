@@ -25,11 +25,11 @@ namespace Terrain.Generators
 
         [SerializeField] private List<Layer> layers;
 
-        public override NativeArray<int> GenerateTerrain(Vector3Int position, Vector3Int size)
+        public override NativeArray<BlockInfo> GenerateTerrain(Vector3Int position, Vector3Int size)
         {
             // Create the multidimensional array
             int totalSize = size.x * size.y * size.z;
-            NativeArray<int> terrain = new NativeArray<int>(totalSize, Allocator.Persistent);
+            NativeArray<BlockInfo> terrain = new(totalSize, Allocator.Persistent);
             
             // Populate the array with the block type
             for (int x = 0; x < size.x; x++)
@@ -40,12 +40,18 @@ namespace Terrain.Generators
 
                 float noise = PerlinNoise3D(x + position.x, y + position.y, z + position.z);
                 
-                terrain[index] = -1;
+                terrain[index] = new BlockInfo()
+                {
+                    blockIndex = -1,
+                };
                 foreach (Layer layer in layers)
                 {
                     if (noise < layer.noiseThreshold)
                     {
-                        terrain[index] = layer.block.Index;
+                        terrain[index] = new BlockInfo()
+                        {
+                            blockIndex = layer.block.Index,
+                        };
                         break;
                     }
                 }

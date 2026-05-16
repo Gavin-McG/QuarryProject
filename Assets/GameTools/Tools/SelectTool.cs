@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace GameTools.Tools
 {
-    [CreateAssetMenu(fileName = "GameTool", menuName = "Scriptable Objects/Tools/Select Tool")]
+    [CreateAssetMenu(fileName = "Select Tool", menuName = "Scriptable Objects/Tools/Select Tool")]
     public class SelectTool : GameTool
     {
         [SerializeField] private Sprite toolSprite;

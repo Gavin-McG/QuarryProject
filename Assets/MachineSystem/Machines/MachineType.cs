@@ -1,3 +1,4 @@
+using Terrain;
 using Terrain.Blocks;
 using UnityEngine;
 
@@ -12,7 +13,7 @@ namespace MachineSystem.Machines
 
         [SerializeField] public BlockType block;
         
-        public abstract Machine CreateMachine(MachineManager manager, Vector3Int position);
+        public abstract Machine CreateMachine(MachineManager manager, Vector3Int position, Rotation rotation = Rotation.Degrees0);
     }
 }
 

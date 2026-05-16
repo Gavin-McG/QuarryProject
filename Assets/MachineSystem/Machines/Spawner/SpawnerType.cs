@@ -1,4 +1,5 @@
 ﻿using ItemSystem;
+using Terrain;
 using UnityEngine;
 
 namespace MachineSystem.Machines.Spawner
@@ -9,7 +10,7 @@ namespace MachineSystem.Machines.Spawner
         [SerializeField] private Spawner prefab;
         [SerializeField] public ItemQuantity itemQuantity;
         
-        public override Machine CreateMachine(MachineManager manager, Vector3Int position)
+        public override Machine CreateMachine(MachineManager manager, Vector3Int position, Rotation rotation = Rotation.Degrees0)
         {
             var machine = Instantiate(prefab, position + PositionOffset, Quaternion.identity, manager.transform);
             machine.position = position;

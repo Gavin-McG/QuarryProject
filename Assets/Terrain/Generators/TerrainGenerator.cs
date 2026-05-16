@@ -12,6 +12,6 @@ namespace Terrain.Generators
         /// Generate the terrain to use
         /// </summary>
         /// <returns>A 3D multidimensional array of block types. null represents nothing</returns>
-        public abstract NativeArray<int> GenerateTerrain(Vector3Int position, Vector3Int size);
+        public abstract NativeArray<BlockInfo> GenerateTerrain(Vector3Int position, Vector3Int size);
     }
 }

@@ -1,12 +1,13 @@
 ﻿using MachineSystem;
 using MachineSystem.Machines;
+using ManagerSystem;
 using Terrain;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace GameTools.Tools
 {
-    [CreateAssetMenu(fileName = "GameTool", menuName = "Scriptable Objects/Tools/Machine Tool")]
+    [CreateAssetMenu(fileName = "Machine Tool", menuName = "Scriptable Objects/Tools/Machine Tool")]
     public class MachineTool : GameTool
     {
         [SerializeField] private Sprite toolSprite;
@@ -19,7 +20,7 @@ namespace GameTools.Tools
         public override void Select()
         {
             base.Select();
-            machineManager = GameObject.Find("MachineManager")?.GetComponent<MachineManager>();
+            machineManager = machineManager = Managers.GetManager<MachineManager>();
         }
         
         // Left click - Place single block

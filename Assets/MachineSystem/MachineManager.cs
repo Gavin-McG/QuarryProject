@@ -69,13 +69,13 @@ namespace MachineSystem
             return machine?.GetMachineType();
         }
 
-        public Machine PlaceMachine(Vector3Int position, MachineType machineType)
+        public Machine PlaceMachine(Vector3Int position, MachineType machineType, Rotation rotation = Rotation.Degrees0)
         {
             if (!SpaceOpen(position)) return null;
             
             // Create new Machine
-            terrainManager.SetBlock(position, machineType.block);
-            Machine newMachine = machineType.CreateMachine(this, position);
+            terrainManager.SetBlock(position, rotation, machineType.block);
+            Machine newMachine = machineType.CreateMachine(this, position, rotation);
             SetMachine(position, newMachine);
             machineSet.Add(newMachine);
             

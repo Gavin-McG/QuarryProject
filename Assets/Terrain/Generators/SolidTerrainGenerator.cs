@@ -12,16 +12,19 @@ namespace Terrain.Generators
     {
         [SerializeField] private BlockType block;
 
-        public override NativeArray<int> GenerateTerrain(Vector3Int position, Vector3Int size)
+        public override NativeArray<BlockInfo> GenerateTerrain(Vector3Int position, Vector3Int size)
         {
             // Create the multidimensional array
             int totalSize = size.x * size.y * size.z;
-            NativeArray<int> terrain = new NativeArray<int>(totalSize, Allocator.Persistent);
+            NativeArray<BlockInfo> terrain = new(totalSize, Allocator.Persistent);
 
             // Populate the array with the block type
             int blockIndex = block.Index;
             for (int i = 0; i < totalSize; i++)
-                terrain[i] = blockIndex;
+                terrain[i] = new BlockInfo()
+                {
+                    blockIndex = blockIndex,
+                };
 
             // Return the array
             return terrain;

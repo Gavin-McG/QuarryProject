@@ -1,11 +1,12 @@
-﻿using Terrain;
+﻿using ManagerSystem;
+using Terrain;
 using Terrain.Blocks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace GameTools.Tools
 {
-    [CreateAssetMenu(fileName = "GameTool", menuName = "Scriptable Objects/Tools/Place Tool")]
+    [CreateAssetMenu(fileName = "Place Tool", menuName = "Scriptable Objects/Tools/Place Tool")]
     public class PlaceTool : GameTool
     {
         [SerializeField] private Sprite toolSprite;
@@ -18,7 +19,7 @@ namespace GameTools.Tools
         public override void Select()
         {
             base.Select();
-            terrainManager = GameObject.Find("TerrainManager")?.GetComponent<TerrainManager>();
+            terrainManager = Managers.GetManager<TerrainManager>();
         }
         
         // Left Drag - Drag destroy area

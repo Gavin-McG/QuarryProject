@@ -23,6 +23,32 @@ namespace Terrain.Blocks
             public BlockFaceData rightFace;
             public BlockFaceData forwardFace;
             public BlockFaceData backFace;
+
+            public BlockFaceData GetFace(Direction direction) => direction switch
+            {
+                Direction.Up => upFace,
+                Direction.Down => downFace,
+                Direction.Left => leftFace,
+                Direction.Right => rightFace,
+                Direction.Forward => forwardFace,
+                Direction.Back => backFace,
+                _ => upFace,
+            };
+            
+            public BlockFaceData GetFace(Direction direction, Rotation rotation)
+            {
+                Direction rotatedDirection = RotationUtility.Rotate(direction, rotation);
+                return rotatedDirection switch
+                {
+                    Direction.Up => upFace,
+                    Direction.Down => downFace,
+                    Direction.Left => leftFace,
+                    Direction.Right => rightFace,
+                    Direction.Forward => forwardFace,
+                    Direction.Back => backFace,
+                    _ => upFace,
+                };
+            }
         }
     }
 }

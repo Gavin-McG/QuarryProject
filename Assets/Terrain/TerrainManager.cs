@@ -49,11 +49,11 @@ namespace Terrain
         class ChunkData
         {
             public TerrainChunk chunk;
-            public NativeArray<int> blockIndex;
+            public NativeArray<BlockInfo> blockData;
 
             ~ChunkData()
             {
-                blockIndex.Dispose();
+                blockData.Dispose();
             }
         }
 
@@ -81,12 +81,12 @@ namespace Terrain
             {
                 // Regenerate terrain
                 Vector3Int position = pair.Key * chunkSize;
-                NativeArray<int> chunkData = generator.GenerateTerrain(position, chunkSize);
+                NativeArray<BlockInfo> chunkData = generator.GenerateTerrain(position, chunkSize);
 
                 // Update chunk
                 pair.Value.chunk.UpdateTerrain(this, chunkData, chunkSize);
-                pair.Value.blockIndex.Dispose();
-                pair.Value.blockIndex = chunkData;
+                pair.Value.blockData.Dispose();
+                pair.Value.blockData = chunkData;
             }
         }
 
@@ -108,14 +108,14 @@ namespace Terrain
             TerrainChunk newChunk = Instantiate(chunkPrefab, position, Quaternion.identity, transform);
 
             // Generate chunk data
-            NativeArray<int> chunkData = generator.GenerateTerrain(position, chunkSize);
+            NativeArray<BlockInfo> chunkData = generator.GenerateTerrain(position, chunkSize);
             newChunk.UpdateTerrain(this, chunkData, chunkSize);
 
             // Add chunk
             chunks.Add(chunkCoord, new ChunkData()
             {
                 chunk = newChunk,
-                blockIndex = chunkData,
+                blockData = chunkData,
             });
         }
 
@@ -214,13 +214,21 @@ namespace Terrain
 
             ChunkPosition chunkPosition = GetChunkPosition(position);
             int index = chunkPosition.x + (chunkPosition.y * chunkSize.x) + (chunkPosition.z * chunkSize.x * chunkSize.y);
-            return BlockData.GetBlock(chunkData.blockIndex[index]);
+            return BlockData.GetBlock(chunkData.blockData[index].blockIndex);
         }
 
         /// <summary>
         /// Sets the block at a specific block position
         /// </summary>
         public void SetBlock(Vector3Int position, BlockType block, bool regenerateMesh = true)
+        {
+            SetBlock(position, Rotation.Degrees0, block, regenerateMesh);
+        }
+
+        /// <summary>
+        /// Sets the block at a specific block position
+        /// </summary>
+        public void SetBlock(Vector3Int position, Rotation rotation, BlockType block, bool regenerateMesh = true)
         {
             // Get the correct chunk
             ChunkCoord chunkCoord = GetChunkCoord(position);
@@ -235,9 +243,13 @@ namespace Terrain
             int index = chunkPosition.x + (chunkPosition.y * chunkSize.x) + (chunkPosition.z * chunkSize.x * chunkSize.y);
             
             // Change block
-            int oldIndex = chunkData.blockIndex[index];
+            int oldIndex = chunkData.blockData[index].blockIndex;
             int newIndex = block?.Index ?? -1;
-            chunkData.blockIndex[index] = newIndex;
+            chunkData.blockData[index] = new BlockInfo()
+            {
+                blockIndex = newIndex,
+                rotation = rotation,
+            };
             
             // Call change events
             if (oldIndex != -1) BlockRemoved.Invoke(position);
@@ -245,7 +257,7 @@ namespace Terrain
 
             // Regenerate chunk mesh
             if (regenerateMesh) {
-                chunkData.chunk.UpdateTerrain(this, chunkData.blockIndex, chunkSize);
+                chunkData.chunk.UpdateTerrain(this, chunkData.blockData, chunkSize);
                 //TODO update neighboring chunks 
             }
             else
@@ -260,7 +272,7 @@ namespace Terrain
             {
                 if (chunks.TryGetValue(chunkCoord, out ChunkData chunkData))
                 {
-                    chunkData.chunk.UpdateTerrain(this, chunkData.blockIndex, chunkSize);
+                    chunkData.chunk.UpdateTerrain(this, chunkData.blockData, chunkSize);
                 }
             }
             dirtyChunks.Clear();
