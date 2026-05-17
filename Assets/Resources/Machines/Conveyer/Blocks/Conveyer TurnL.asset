@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Conveyer TurnL
   m_EditorClassIdentifier: Terrain::Terrain.Blocks.SixSidedBlockType
   blockName: Conveyer TurnL
-  topSprite: {fileID: 512200518, guid: c27a15b387a595b499a74294648d74b6, type: 3}
+  topSprite: {fileID: -874634748, guid: c27a15b387a595b499a74294648d74b6, type: 3}
   bottomSprite: {fileID: -2010463830, guid: c27a15b387a595b499a74294648d74b6, type: 3}
-  leftSprite: {fileID: 653121556, guid: c27a15b387a595b499a74294648d74b6, type: 3}
-  rightSprite: {fileID: 116274834, guid: c27a15b387a595b499a74294648d74b6, type: 3}
+  leftSprite: {fileID: 116274834, guid: c27a15b387a595b499a74294648d74b6, type: 3}
+  rightSprite: {fileID: 653121556, guid: c27a15b387a595b499a74294648d74b6, type: 3}
   frontSprite: {fileID: 116274834, guid: c27a15b387a595b499a74294648d74b6, type: 3}
   backSprite: {fileID: 653121556, guid: c27a15b387a595b499a74294648d74b6, type: 3}

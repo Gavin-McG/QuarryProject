@@ -51,10 +51,10 @@ namespace Terrain
     {
         private static readonly Direction[] HorizontalDirections =
         {
-            Direction.Forward,
             Direction.Right,
-            Direction.Back,
-            Direction.Left
+            Direction.Forward,
+            Direction.Left,
+            Direction.Back
         };
 
         public static int GetRotationIndex(Rotation rotation) => rotation switch
@@ -68,10 +68,10 @@ namespace Terrain
 
         public static int GetDirectionIndex(Direction direction) => direction switch
         {
-            Direction.Forward => 0,
-            Direction.Right => 1,
-            Direction.Back => 2,
-            Direction.Left => 3,
+            Direction.Right => 0,
+            Direction.Forward => 1,
+            Direction.Left => 2,
+            Direction.Back => 3,
             _ => throw new ArgumentOutOfRangeException(nameof(direction))
         };
 

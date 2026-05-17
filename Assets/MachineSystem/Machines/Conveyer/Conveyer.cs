@@ -37,7 +37,7 @@ namespace MachineSystem.Machines.Conveyer
 
         public override IEnumerable<Direction> GetInputDirections()
         {
-            yield return inputDirection;
+            yield return DirectionUtility.Opposite(inputDirection);
         }
 
         public override IEnumerable<Direction> GetOutputDirections()
@@ -47,7 +47,7 @@ namespace MachineSystem.Machines.Conveyer
 
         public override void ConnectInput(Direction direction, Machine machine)
         {
-            if (direction == inputDirection)
+            if (direction == DirectionUtility.Opposite(inputDirection))
             {
                 if (node.inputNode == null)
                 {
@@ -62,7 +62,7 @@ namespace MachineSystem.Machines.Conveyer
 
         public override void DisconnectInput(Direction direction, Machine machine)
         {
-            if (direction == inputDirection)
+            if (direction == DirectionUtility.Opposite(inputDirection))
             {
                 if (node.inputNode == null)
                 {
