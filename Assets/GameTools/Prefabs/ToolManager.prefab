@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 940277710840652153}
   - component: {fileID: 2529125985365782410}
-  - component: {fileID: 7261746425204905518}
+  - component: {fileID: 1996502863045945123}
   m_Layer: 0
   m_Name: ToolManager
   m_TagString: Untagged
@@ -46,7 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afe3d0ecfc02468ea20f0ea8fefba23e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameTools.ToolManager
---- !u!114 &7261746425204905518
+  raycaster: {fileID: 0}
+--- !u!114 &1996502863045945123
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
