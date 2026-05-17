@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using ClickManager;
 using Terrain.Blocks;
 using Unity.Burst;
 using Unity.Collections;
@@ -360,7 +358,7 @@ namespace Terrain
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
     [RequireComponent(typeof(MeshCollider))]
-    public class TerrainChunk : MonoBehaviour, IClickReceiver, ISelectable
+    public class TerrainChunk : MonoBehaviour
     {
         [SerializeField] private Material material;
 
@@ -468,32 +466,6 @@ namespace Terrain
             mesh.RecalculateBounds();
             
             return mesh;
-        }
-
-
-        public void LeftButtonPressed(RaycastHit hit)
-        {
-            manager.LeftButtonPressed(hit);
-        }
-        
-        public void LeftButtonReleased(RaycastHit hit, IClickReceiver pressedObject)
-        {
-            manager.LeftButtonReleased(hit, pressedObject);
-        }
-
-        public void RightButtonPressed(RaycastHit hit)
-        {
-            manager.RightButtonPressed(hit);
-        }
-
-        public void RightButtonReleased(RaycastHit hit, IClickReceiver pressedObject)
-        {
-            manager.RightButtonReleased(hit, pressedObject);
-        }
-
-        public Bounds GetSelectionRect(RaycastHit hit)
-        {
-            return manager.GetSelectionRect(hit);
         }
     }
 }

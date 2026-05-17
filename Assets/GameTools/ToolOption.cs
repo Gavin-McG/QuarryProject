@@ -1,5 +1,6 @@
 ﻿using System;
 using GameTools.Tools;
+using ManagerSystem;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -31,7 +32,8 @@ namespace GameTools
 
         private void SelectTool()
         {
-            ToolManager.SetTool(tool);
+            ToolManager toolManager = Managers.GetManager<ToolManager>();
+            toolManager.SetTool(tool);
         }
 
         public void RemoveOption()

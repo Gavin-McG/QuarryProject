@@ -2,6 +2,7 @@
 using Terrain;
 using Terrain.Blocks;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace GameTools.Tools
 {
@@ -19,12 +20,23 @@ namespace GameTools.Tools
         {
             base.Select();
             terrainManager = Managers.GetManager<TerrainManager>();
+            
+            TerrainManager.onPointerClick.AddListener(TerrainClick);
         }
 
-        public override void TerrainLeftButtonPressed(TerrainPointerInfo info)
+        public override void Deselect()
         {
-            base.TerrainLeftButtonPressed(info);
-            terrainManager?.SetBlock(info.BackPosition, block);
+            base.Deselect();
+            TerrainManager.onPointerClick.RemoveListener(TerrainClick);
+        }
+
+        private void TerrainClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                TerrainPointerInfo terrainInfo = TerrainManager.GetRaycastInfo(eventData.pointerCurrentRaycast);
+                terrainManager.SetBlock(terrainInfo.BackPosition, block);
+            }
         }
     }
 }

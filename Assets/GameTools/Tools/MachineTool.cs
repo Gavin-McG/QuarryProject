@@ -4,6 +4,8 @@ using ManagerSystem;
 using Terrain;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.EventSystems;
+
 
 namespace GameTools.Tools
 {
@@ -21,13 +23,24 @@ namespace GameTools.Tools
         {
             base.Select();
             machineManager = machineManager = Managers.GetManager<MachineManager>();
+            
+            TerrainManager.onPointerClick.AddListener(TerrainClick);
         }
-        
-        // Left click - Place single block
-        public override void TerrainLeftButtonPressed(TerrainPointerInfo info)
+
+        public override void Deselect()
         {
-            base.TerrainLeftButtonPressed(info);
-            machineManager?.PlaceMachine(info.FrontPosition, machineType);
+            base.Deselect();
+            
+            TerrainManager.onPointerClick.RemoveListener(TerrainClick);
+        }
+
+        private void TerrainClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                TerrainPointerInfo terrainInfo = TerrainManager.GetRaycastInfo(eventData.pointerCurrentRaycast);
+                machineManager.PlaceMachine(terrainInfo.FrontPosition, machineType);
+            }
         }
     }
 }

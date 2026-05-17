@@ -1,14 +1,18 @@
-﻿using System;
-using ClickManager;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 namespace ItemSystem
 {
-    public class ItemInstance : MonoBehaviour, IClickReceiver, ISelectable
+    public class ItemInstance : MonoBehaviour, 
+        IPointerClickHandler, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
     {
-        public readonly static UnityEvent<ItemInstance> ItemLeftButtonClicked = new();
-        public readonly static UnityEvent<ItemInstance> ItemRightButtonClicked = new();
+        public static readonly UnityEvent<ItemInstance, PointerEventData> onPointerClick = new();
+        public static readonly UnityEvent<ItemInstance, PointerEventData> onPointerDown = new();
+        public static readonly UnityEvent<ItemInstance, PointerEventData> onPointerUp = new();
+        public static readonly UnityEvent<ItemInstance, PointerEventData> onPointerEnter = new();
+        public static readonly UnityEvent<ItemInstance, PointerEventData> onPointerExit = new();
+        public static readonly UnityEvent<ItemInstance, PointerEventData> onPointerMove = new();
         
         [SerializeField] public ItemQuantity item;
 
@@ -16,20 +20,35 @@ namespace ItemSystem
         {
             transform.position = position;
         }
-
-        public void LeftButtonClicked(RaycastHit hit)
+        
+        public void OnPointerClick(PointerEventData eventData)
         {
-            ItemLeftButtonClicked.Invoke(this);
+            onPointerClick.Invoke(this, eventData);
         }
 
-        public void RightButtonClicked(RaycastHit hit)
+        public void OnPointerDown(PointerEventData eventData)
         {
-            ItemRightButtonClicked.Invoke(this);
+            onPointerDown.Invoke(this, eventData);
         }
 
-        public Bounds GetSelectionRect(RaycastHit hit)
+        public void OnPointerUp(PointerEventData eventData)
         {
-            return new Bounds(transform.position, Vector3.one * 0.6f);
+            onPointerUp.Invoke(this, eventData);
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            onPointerEnter.Invoke(this, eventData);
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            onPointerExit.Invoke(this, eventData);
+        }
+        
+        public void OnPointerMove(PointerEventData eventData)
+        {
+            onPointerMove.Invoke(this, eventData);
         }
     }
 }

@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using ClickManager;
 using Terrain.Blocks;
 using Terrain.Generators;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using ChunkCoord = UnityEngine.Vector3Int;
 using ChunkPosition = UnityEngine.Vector3Int;
@@ -33,7 +33,8 @@ namespace Terrain
         };
     }
 
-    public class TerrainManager : MonoBehaviour
+    public class TerrainManager : MonoBehaviour, 
+        IPointerClickHandler, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
     {
         [SerializeField] private TerrainChunk chunkPrefab;
         [SerializeField] private TerrainGenerator generator;
@@ -64,6 +65,11 @@ namespace Terrain
         {
             BlockData.InitializeBlockData();
             LoadInitialChunks();
+        }
+
+        private void LateUpdate()
+        {
+            RegenerateDirtyChunks();
         }
 
         private void OnDestroy()
@@ -117,13 +123,6 @@ namespace Terrain
                 chunk = newChunk,
                 blockData = chunkData,
             });
-        }
-
-        bool RayCastTerrain(out RaycastHit hit)
-        {
-            Vector2 mousePosition = Mouse.current.position.ReadValue();
-            Ray cameraRay = Camera.main.ScreenPointToRay(mousePosition);
-            return Physics.Raycast(cameraRay.origin, cameraRay.direction, out hit, 1000, terrainMask);
         }
         
         #region Conversions
@@ -191,7 +190,7 @@ namespace Terrain
         /// <summary>
         /// Converts continuous world position to block coordinate
         /// </summary>
-        private Vector3Int GetBlockPosition(Vector3 position)
+        private static Vector3Int GetBlockPosition(Vector3 position)
         {
             return new Vector3Int(
                 Mathf.FloorToInt(position.x),
@@ -220,15 +219,15 @@ namespace Terrain
         /// <summary>
         /// Sets the block at a specific block position
         /// </summary>
-        public void SetBlock(Vector3Int position, BlockType block, bool regenerateMesh = true)
+        public void SetBlock(Vector3Int position, BlockType block)
         {
-            SetBlock(position, Rotation.Degrees0, block, regenerateMesh);
+            SetBlock(position, Rotation.Degrees0, block);
         }
 
         /// <summary>
         /// Sets the block at a specific block position
         /// </summary>
-        public void SetBlock(Vector3Int position, Rotation rotation, BlockType block, bool regenerateMesh = true)
+        public void SetBlock(Vector3Int position, Rotation rotation, BlockType block)
         {
             // Get the correct chunk
             ChunkCoord chunkCoord = GetChunkCoord(position);
@@ -255,18 +254,10 @@ namespace Terrain
             if (oldIndex != -1) BlockRemoved.Invoke(position);
             if (newIndex != -1) BlockAdded.Invoke(position);
 
-            // Regenerate chunk mesh
-            if (regenerateMesh) {
-                chunkData.chunk.UpdateTerrain(this, chunkData.blockData, chunkSize);
-                //TODO update neighboring chunks 
-            }
-            else
-            {
-                dirtyChunks.Add(chunkCoord);
-            }
+            dirtyChunks.Add(chunkCoord);
         }
 
-        public void RegenerateDirtyChunks()
+        private void RegenerateDirtyChunks()
         {
             foreach (var chunkCoord in dirtyChunks)
             {
@@ -279,97 +270,57 @@ namespace Terrain
         }
 
         #endregion
-        #region Mouse Interactions
+        #region EventSystem Methods
         
-        // Mouse methods
-        public static readonly UnityEvent<TerrainPointerInfo> TerrainLeftButtonPressed = new();
-        public static readonly UnityEvent<TerrainPointerInfo> TerrainLeftButtonReleased = new();
-        public static readonly UnityEvent<TerrainPointerInfo, TerrainPointerInfo> TerrainLeftButtonDragged = new();
-            
-        public static readonly UnityEvent<TerrainPointerInfo> TerrainRightButtonPressed = new();
-        public static readonly UnityEvent<TerrainPointerInfo> TerrainRightButtonReleased = new();
-        public static readonly UnityEvent<TerrainPointerInfo, TerrainPointerInfo> TerrainRightButtonDragged = new();
-
-        private TerrainPointerInfo leftButtonStartInfo;
-        private TerrainPointerInfo rightButtonStartInfo;
-
-        public Vector3Int GetHitBlock(RaycastHit hit)
+        public static readonly UnityEvent<PointerEventData> onPointerClick = new UnityEvent<PointerEventData>();
+        public static readonly UnityEvent<PointerEventData> onPointerDown = new UnityEvent<PointerEventData>();
+        public static readonly UnityEvent<PointerEventData> onPointerUp = new UnityEvent<PointerEventData>();
+        public static readonly UnityEvent<PointerEventData> onPointerEnter = new UnityEvent<PointerEventData>();
+        public static readonly UnityEvent<PointerEventData> onPointerExit = new UnityEvent<PointerEventData>();
+        public static readonly UnityEvent<PointerEventData> onPointerMove = new UnityEvent<PointerEventData>();
+        
+        public static TerrainPointerInfo GetRaycastInfo(RaycastResult hit)
         {
-            Vector3 position = hit.point - hit.normal * 0.02f; //ensure position inside block
+            Vector3 position = hit.worldPosition - hit.worldNormal * 0.02f; //ensure position inside block
             Vector3Int blockPosition = GetBlockPosition(position);
-            return blockPosition;
+            SurfaceDirection direction = GetSurfaceDirection(hit.worldNormal);
+            return new TerrainPointerInfo()
+            {
+                position = blockPosition,
+                direction = direction,
+            };
         }
 
-        // Left click begins being pressed
-        public void LeftButtonPressed(RaycastHit hit)
+        public void OnPointerClick(PointerEventData eventData)
         {
-            leftButtonStartInfo = new TerrainPointerInfo()
-            {
-                position = GetHitBlock(hit),
-                direction = GetSurfaceDirection(hit.normal)
-            };
-            
-            // Publish press event
-            TerrainLeftButtonPressed.Invoke(leftButtonStartInfo);
+            onPointerClick.Invoke(eventData);
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            onPointerDown.Invoke(eventData);
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            onPointerUp.Invoke(eventData);
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            onPointerEnter.Invoke(eventData);
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            onPointerExit.Invoke(eventData);
         }
         
-        // Left click is released
-        public void LeftButtonReleased(RaycastHit hit, IClickReceiver pressedObject)
+        public void OnPointerMove(PointerEventData eventData)
         {
-            var leftButtonEndInfo = new TerrainPointerInfo()
-            {
-                position = GetHitBlock(hit),
-                direction = GetSurfaceDirection(hit.normal)
-            };
-            
-            // Publish release event
-            TerrainLeftButtonReleased.Invoke(leftButtonEndInfo);
-            
-            // Check for Dragged event
-            if (pressedObject is TerrainChunk)
-            {
-                TerrainLeftButtonDragged.Invoke(leftButtonStartInfo, leftButtonEndInfo);
-            }
+            onPointerMove.Invoke(eventData);
         }
-
-        // Right click begins being pressed
-        public void RightButtonPressed(RaycastHit hit)
-        {
-            rightButtonStartInfo = new TerrainPointerInfo()
-            {
-                position = GetHitBlock(hit),
-                direction = GetSurfaceDirection(hit.normal)
-            };
-            
-            // Publish press event
-            TerrainRightButtonPressed.Invoke(rightButtonStartInfo);
-        }
-
-        // Right click is released
-        public void RightButtonReleased(RaycastHit hit, IClickReceiver pressedObject)
-        {
-            var rightButtonEndInfo = new TerrainPointerInfo()
-            {
-                position = GetHitBlock(hit),
-                direction = GetSurfaceDirection(hit.normal)
-            };
-            
-            // Publish release event
-            TerrainRightButtonReleased.Invoke(rightButtonEndInfo);
-            
-            // Check for Dragged event
-            if (pressedObject is TerrainChunk)
-            {
-                TerrainRightButtonDragged.Invoke(rightButtonStartInfo, rightButtonEndInfo);
-            }
-        }
-
-        public Bounds GetSelectionRect(RaycastHit hit)
-        {
-            Vector3 position = GetHitBlock(hit) + Vector3.one * 0.5f;
-            return new Bounds(position, Vector3.one * 1.02f);
-        }
-
+        
         #endregion
     }
 }

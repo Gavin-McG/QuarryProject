@@ -1,6 +1,7 @@
 ﻿using ManagerSystem;
 using Terrain;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace GameTools.Tools
 {
@@ -17,30 +18,35 @@ namespace GameTools.Tools
         {
             base.Select();
             terrainManager = Managers.GetManager<TerrainManager>();
+            
+            TerrainManager.onPointerClick.AddListener(TerrainClick);
         }
-        
-        // Left Drag - Drag destroy area
-        
-        public override void TerrainLeftButtonDragged(TerrainPointerInfo startInfo, TerrainPointerInfo endInfo)
+
+        public override void Deselect()
         {
-            base.TerrainRightButtonDragged(startInfo, endInfo);
+            base.Deselect();
+            TerrainManager.onPointerClick.RemoveListener(TerrainClick);
+        }
+
+        private void TerrainClick(PointerEventData eventData)
+        {
+            TerrainPointerInfo startInfo = TerrainManager.GetRaycastInfo(eventData.pointerPressRaycast);
+            Vector3Int startPosition = startInfo.BackPosition;
             
-            Vector3Int dragStartPosition = startInfo.BackPosition;
-            Vector3Int dragEndPosition = endInfo.BackPosition;
+            TerrainPointerInfo endInfo = TerrainManager.GetRaycastInfo(eventData.pointerCurrentRaycast);
+            Vector3Int endPosition = endInfo.BackPosition;
             
-            int minX = Mathf.Min(dragStartPosition.x, dragEndPosition.x);
-            int minY = Mathf.Min(dragStartPosition.y, dragEndPosition.y);
-            int minZ = Mathf.Min(dragStartPosition.z, dragEndPosition.z);
-            int maxX = Mathf.Max(dragStartPosition.x, dragEndPosition.x);
-            int maxY = Mathf.Max(dragStartPosition.y, dragEndPosition.y);
-            int maxZ = Mathf.Max(dragStartPosition.z, dragEndPosition.z);
+            int minX = Mathf.Min(startPosition.x, endPosition.x);
+            int minY = Mathf.Min(startPosition.y, endPosition.y);
+            int minZ = Mathf.Min(startPosition.z, endPosition.z);
+            int maxX = Mathf.Max(startPosition.x, endPosition.x);
+            int maxY = Mathf.Max(startPosition.y, endPosition.y);
+            int maxZ = Mathf.Max(startPosition.z, endPosition.z);
             
             for (int x = minX; x <= maxX; x++)
                 for (int y = minY; y <= maxY; y++)
                     for (int z = minZ; z <= maxZ; z++)
-                        terrainManager.SetBlock(new Vector3Int(x, y, z), null, false);
-            
-            terrainManager.RegenerateDirtyChunks();
+                        terrainManager.SetBlock(new Vector3Int(x, y, z), null);
         }
     }
 }

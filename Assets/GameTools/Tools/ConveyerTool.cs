@@ -3,6 +3,7 @@ using MachineSystem.Machines.Conveyer;
 using ManagerSystem;
 using Terrain;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace GameTools.Tools
 {
@@ -20,16 +21,24 @@ namespace GameTools.Tools
         {
             base.Select();
             machineManager = Managers.GetManager<MachineManager>();
+            
+            TerrainManager.onPointerClick.AddListener(TerrainClick);
+        }
+
+        public override void Deselect()
+        {
+            base.Deselect();
+            TerrainManager.onPointerClick.RemoveListener(TerrainClick);
         }
         
         // Left click - Place single block
-        public override void TerrainLeftButtonDragged(TerrainPointerInfo startInfo, TerrainPointerInfo endInfo)
+        private void TerrainClick(PointerEventData eventData)
         {
-            base.TerrainLeftButtonDragged(startInfo, endInfo);
-            
+            TerrainPointerInfo startInfo = TerrainManager.GetRaycastInfo(eventData.pointerPressRaycast);
             Vector3Int startPosition = startInfo.FrontPosition;
+            TerrainPointerInfo endInfo = TerrainManager.GetRaycastInfo(eventData.pointerCurrentRaycast);
             Vector3Int endPosition = endInfo.FrontPosition;
-
+        
             if (startPosition.x == endPosition.x)
             {
                 // Single belt line in Z axis
@@ -45,7 +54,7 @@ namespace GameTools.Tools
             else
             {
                 Vector3Int cornerPosition = new Vector3Int(endPosition.x, startPosition.y, startPosition.z);
-
+        
                 // Place X axis belt
                 Direction directionX = startPosition.x <= endPosition.x ? Direction.Right : Direction.Left;
                 Vector3Int beltEndPositionX = DirectionUtility.MovePosition(cornerPosition, DirectionUtility.Opposite(directionX));
@@ -61,11 +70,11 @@ namespace GameTools.Tools
                 machineManager.PlaceMachine(cornerPosition, type, rotation);
             }
         }
-
-        public void PlaceBeltLine(Vector3Int startPosition, Vector3Int endPosition, Direction direction)
+        
+        private void PlaceBeltLine(Vector3Int startPosition, Vector3Int endPosition, Direction direction)
         {
             (ConveyerType type, Rotation rotation) = conveyerSet.GetConveyer(direction, direction);
-
+        
             if (direction == Direction.Right || direction == Direction.Left)
             {
                 int startX = Mathf.Min(startPosition.x, endPosition.x);

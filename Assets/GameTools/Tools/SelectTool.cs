@@ -1,15 +1,18 @@
-﻿using ClickManager;
-using ItemSystem;
+﻿using ItemSystem;
 using MachineSystem;
 using ManagerSystem;
 using Terrain;
+using Terrain.Blocks;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace GameTools.Tools
 {
     [CreateAssetMenu(fileName = "Select Tool", menuName = "Scriptable Objects/Tools/Select Tool")]
     public class SelectTool : GameTool
     {
+        private enum HoverMode { None, Terrain, Item }
+        
         [SerializeField] private Sprite toolSprite;
         [SerializeField] private GameObject selectionPrefab;
         
@@ -19,6 +22,9 @@ namespace GameTools.Tools
         private TerrainManager terrainManager;
 
         private GameObject selectionObject;
+        
+        private HoverMode hoverMode;
+        private PointerEventData cachedEventData;
 
         public override void Select()
         {
@@ -28,66 +34,92 @@ namespace GameTools.Tools
             
             selectionObject = Instantiate(selectionPrefab);
             selectionObject.SetActive(false);
+            
+            TerrainManager.onPointerClick.AddListener(TerrainClick);
+            TerrainManager.onPointerEnter.AddListener(TerrainEnter);
+            TerrainManager.onPointerExit.AddListener(TerrainExit);
+            ItemInstance.onPointerClick.AddListener(ItemClick);
+            ItemInstance.onPointerEnter.AddListener(ItemEnter);
+            ItemInstance.onPointerExit.AddListener(ItemExit);
         }
 
         public override void Deselect()
         {
             base.Deselect();
             Destroy(selectionObject);
+            
+            TerrainManager.onPointerClick.RemoveListener(TerrainClick);
+            TerrainManager.onPointerEnter.RemoveListener(TerrainEnter);
+            TerrainManager.onPointerExit.RemoveListener(TerrainExit);
+            ItemInstance.onPointerClick.RemoveListener(ItemClick);
+            ItemInstance.onPointerEnter.RemoveListener(ItemEnter);
+            ItemInstance.onPointerExit.RemoveListener(ItemExit);
         }
-
+        
         public override void Update()
         {
-            base.Update();
-            IClickReceiver currentFocus = ClickRaycast.CurrentHover;
-
-            if (currentFocus is ISelectable selectable)
+            switch (hoverMode)
             {
-                Bounds bounds = selectable.GetSelectionRect(ClickRaycast.CurrentHit);
-                bounds.min -= Vector3.one * 0.01f;
-                bounds.max += Vector3.one * 0.01f;
-                
-                Vector3 center = bounds.center;
-                Vector3 scale = bounds.size;
-                selectionObject.SetActive(true);
-                selectionObject.transform.position = center;
-                selectionObject.transform.localScale = scale;
-            }
-            else
-            {
-                selectionObject.SetActive(false);
-            }
-        }
-
-        public override void TerrainLeftButtonDragged(TerrainPointerInfo startInfo, TerrainPointerInfo endInfo)
-        {
-            base.TerrainLeftButtonDragged(startInfo, endInfo);
-
-            // Ignore drags unless on same block
-            if (startInfo.BackPosition != endInfo.BackPosition) return;
-
-            // Check if block clicked is a machine
-            var machine = machineManager.GetMachine(startInfo.FrontPosition);
-            if (machine != null)
-            {
-                Debug.Log("Clicked Machine: " + machine.name);
-                return;
-            }
-
-            // Click normal block
-            var blockType = terrainManager.GetBlock(startInfo.position);
-            if (blockType != null)
-            {
-                Debug.Log("Clicked Block: " + blockType.blockName);
-                return;
+                case HoverMode.Terrain:
+                {
+                    TerrainPointerInfo terrainInfo = TerrainManager.GetRaycastInfo(cachedEventData.pointerCurrentRaycast);
+                    Vector3Int position = terrainInfo.BackPosition;
+                    selectionObject.transform.position = position + (Vector3.one * 0.5f);
+                    selectionObject.transform.localScale = Vector3.one * 1.02f;
+                    selectionObject.SetActive(true);
+                    break;
+                }
+                case HoverMode.Item:
+                {
+                    GameObject item = cachedEventData.pointerCurrentRaycast.gameObject;
+                    selectionObject.transform.position = item.transform.position;
+                    selectionObject.transform.localScale = Vector3.one * 0.62f;
+                    selectionObject.SetActive(true);
+                    break;
+                }
+                default:
+                {
+                    selectionObject.SetActive(false);
+                    break;
+                }
             }
         }
 
-        public override void ItemLeftButtonClicked(ItemInstance item)
+        private void TerrainClick(PointerEventData eventData)
         {
-            base.ItemLeftButtonClicked(item);
+            TerrainPointerInfo terrainInfo = TerrainManager.GetRaycastInfo(eventData.pointerCurrentRaycast);
+            BlockType type = terrainManager.GetBlock(terrainInfo.BackPosition);
             
-            Debug.Log("Clicked Item: " + item.item);
+            Debug.Log(type.name + " " + terrainInfo.BackPosition);
+        }
+
+        private void TerrainEnter(PointerEventData eventData)
+        {
+            hoverMode = HoverMode.Terrain;
+            cachedEventData = eventData;
+        }
+
+        private void TerrainExit(PointerEventData eventData)
+        {
+            hoverMode = HoverMode.None;
+            cachedEventData = null;
+        }
+
+        private void ItemClick(ItemInstance instance, PointerEventData eventData)
+        {
+            Debug.Log(instance.item);
+        }
+
+        private void ItemEnter(ItemInstance instance, PointerEventData eventData)
+        {
+            hoverMode = HoverMode.Item;
+            cachedEventData = eventData;
+        }
+
+        private void ItemExit(ItemInstance instance, PointerEventData eventData)
+        {
+            hoverMode = HoverMode.None;
+            cachedEventData = null;
         }
     }
 }

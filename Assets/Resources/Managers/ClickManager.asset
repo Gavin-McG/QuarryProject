@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: ClickManager
   m_EditorClassIdentifier: Managers::Managers.ManagerObject
   prefab: {fileID: 3711439820172188503, guid: bf9b00e99e6c5634f9915fa32d102861, type: 3}
-  spawnOnInitialize: 1
+  spawnOnInitialize: 0
