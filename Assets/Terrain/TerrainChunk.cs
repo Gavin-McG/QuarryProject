@@ -360,7 +360,7 @@ namespace Terrain
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
     [RequireComponent(typeof(MeshCollider))]
-    public class TerrainChunk : MonoBehaviour, IReceiveClickCast
+    public class TerrainChunk : MonoBehaviour, IClickReceiver, ISelectable
     {
         [SerializeField] private Material material;
 
@@ -476,7 +476,7 @@ namespace Terrain
             manager.LeftButtonPressed(hit);
         }
         
-        public void LeftButtonReleased(RaycastHit hit, IReceiveClickCast pressedObject)
+        public void LeftButtonReleased(RaycastHit hit, IClickReceiver pressedObject)
         {
             manager.LeftButtonReleased(hit, pressedObject);
         }
@@ -486,9 +486,14 @@ namespace Terrain
             manager.RightButtonPressed(hit);
         }
 
-        public void RightButtonReleased(RaycastHit hit, IReceiveClickCast pressedObject)
+        public void RightButtonReleased(RaycastHit hit, IClickReceiver pressedObject)
         {
             manager.RightButtonReleased(hit, pressedObject);
+        }
+
+        public Bounds GetSelectionRect(RaycastHit hit)
+        {
+            return manager.GetSelectionRect(hit);
         }
     }
 }

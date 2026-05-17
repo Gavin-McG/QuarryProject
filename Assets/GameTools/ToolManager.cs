@@ -39,6 +39,11 @@ namespace GameTools
             ItemInstance.ItemRightButtonClicked.RemoveListener(ItemRightButtonClicked);
         }
 
+        private void Update()
+        {
+            CurrentTool?.Update();
+        }
+
         public static void SetTool(GameTool tool)
         {
             CurrentTool?.Deselect();

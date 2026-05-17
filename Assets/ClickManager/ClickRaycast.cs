@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using ManagerSystem;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace ClickManager
 {
@@ -18,18 +17,28 @@ namespace ClickManager
                 return x.distance.CompareTo(y.distance);
             }
         }
-        
+
+        private static readonly RaycastHitComparer comparer = new();
+
         private static LayerMask castLayer;
-        public static void SetCastLayer(LayerMask layer) { castLayer = layer; }
-        
-        [SerializeField] LayerMask defaultLayer;
-        
-        private IReceiveClickCast currentLeftHover = null;
-        private IReceiveClickCast currentRightHover = null;
+        public static void SetCastLayer(LayerMask layer) => castLayer = layer;
+
+        [SerializeField] private LayerMask defaultLayer;
+
+        // Cached hover state
+        private int hoverFrame = -1;
+        public static IClickReceiver CurrentHover { get; private set; }
+        public static RaycastHit CurrentHit { get; private set; }
+
+        private IClickReceiver currentLeftPress;
+        private IClickReceiver currentRightPress;
+
+        private Camera cachedCamera;
 
         private void Start()
         {
             SetCastLayer(defaultLayer);
+            cachedCamera = Camera.main;
         }
 
         private void OnEnable()
@@ -44,84 +53,114 @@ namespace ClickManager
             ClickManager.rightButtonChanged.RemoveListener(HandleRightButton);
         }
 
+        private void Update()
+        {
+            EnsureHoverUpdated();
+        }
+
+        private void EnsureHoverUpdated()
+        {
+            // Skip if current frame already queried
+            if (Time.frameCount == hoverFrame) return;
+            
+            // Perform raycast to get info
+            Vector2 mousePosition = Mouse.current.position.ReadValue();
+            CurrentHover = CastClick<IClickReceiver>(mousePosition, out RaycastHit hit);
+            CurrentHit = hit;
+            hoverFrame = Time.frameCount;
+        }
+
         private void HandleLeftButton(LeftButtonInfo buttonInfo)
         {
-            // Skip when the mouse is over UI
-            if (buttonInfo.HoverState != PointerHoverState.Game) return;
+            if (buttonInfo.HoverState != PointerHoverState.Game)
+                return;
             
-            // Get the currently hovering object
-            IReceiveClickCast currentFocus = CastClick<IReceiveClickCast>(buttonInfo.mousePosition, out RaycastHit hit);
-            
+            EnsureHoverUpdated();
+
+            IClickReceiver currentFocus = CurrentHover;
+            RaycastHit hit = CurrentHit;
+
             if (buttonInfo.pressed)
             {
-                // Press Button
                 currentFocus?.LeftButtonPressed(hit);
-                currentLeftHover = currentFocus;
+                currentLeftPress = currentFocus;
             }
-            else if (currentFocus != null)
+            else
             {
-                // Click if hover and release are on same object
-                if (currentFocus == currentLeftHover)
+                if (currentFocus != null)
                 {
-                    currentFocus.LeftButtonClicked(hit);
+                    if (currentFocus == currentLeftPress)
+                    {
+                        currentFocus.LeftButtonClicked(hit);
+                    }
+
+                    currentFocus.LeftButtonReleased(hit, currentLeftPress);
                 }
-                
-                // Release Button
-                currentFocus.LeftButtonReleased(hit, currentLeftHover);
-                currentLeftHover = null;
+
+                currentLeftPress = null;
             }
         }
 
         private void HandleRightButton(RightButtonInfo buttonInfo)
         {
-            // Skip when the mouse is over UI
-            if (buttonInfo.HoverState != PointerHoverState.Game) return;
+            if (buttonInfo.HoverState != PointerHoverState.Game)
+                return;
+
+            EnsureHoverUpdated();
             
-            // Get the currently hovering object
-            IReceiveClickCast currentFocus = CastClick<IReceiveClickCast>(buttonInfo.mousePosition, out RaycastHit hit);
-            
+            IClickReceiver currentFocus = CurrentHover;
+            RaycastHit hit = CurrentHit;
+
             if (buttonInfo.pressed)
             {
-                // Press Button
                 currentFocus?.RightButtonPressed(hit);
-                currentRightHover = currentFocus;
+                currentRightPress = currentFocus;
             }
-            else if (currentFocus != null)
+            else
             {
-                // Click if hover and release are on same object
-                if (currentFocus == currentRightHover)
+                if (currentFocus != null)
                 {
-                    currentFocus.RightButtonClicked(hit);
+                    if (currentFocus == currentRightPress)
+                    {
+                        currentFocus.RightButtonClicked(hit);
+                    }
+
+                    currentFocus.RightButtonReleased(hit, currentRightPress);
                 }
-                
-                // Release Button
-                currentFocus.RightButtonReleased(hit, currentRightHover);
-                currentRightHover = null;
+
+                currentRightPress = null;
             }
         }
 
-        private T CastClick<T>(Vector2 mousePosition, out RaycastHit hit) where T : class
+        private T CastClick<T>(
+            Vector2 mousePosition,
+            out RaycastHit hit)
+            where T : class
         {
-            Ray clickRay = Camera.main.ScreenPointToRay(mousePosition);
-            RaycastHit[] hits = Physics.RaycastAll(clickRay.origin, clickRay.direction, Mathf.Infinity, castLayer);
-            
-            // Iterate through hit objects in sorted order
-            Array.Sort(hits, new RaycastHitComparer());
+            Ray clickRay = cachedCamera.ScreenPointToRay(mousePosition);
+
+            RaycastHit[] hits = Physics.RaycastAll(
+                clickRay.origin,
+                clickRay.direction,
+                Mathf.Infinity,
+                castLayer);
+
+            Array.Sort(hits, comparer);
+
             foreach (RaycastHit nextHit in hits)
             {
-                // Get the clickReceiver on the hit object
-                GameObject hitGameObject = nextHit.collider.gameObject;
-                T clickReceiver = hitGameObject.GetComponent<T>();
+                GameObject hitObject = nextHit.collider.gameObject;
 
-                // Check if the object should catch the click
-                if (clickReceiver != null)
+                T receiver = hitObject.GetComponent<T>();
+
+                if (receiver != null)
                 {
                     hit = nextHit;
-                    return clickReceiver;
+                    return receiver;
                 }
             }
 
-            hit = new RaycastHit();
+            hit = default;
             return null;
         }
     }

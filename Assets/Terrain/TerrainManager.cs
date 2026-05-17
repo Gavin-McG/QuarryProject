@@ -314,7 +314,7 @@ namespace Terrain
         }
         
         // Left click is released
-        public void LeftButtonReleased(RaycastHit hit, IReceiveClickCast pressedObject)
+        public void LeftButtonReleased(RaycastHit hit, IClickReceiver pressedObject)
         {
             var leftButtonEndInfo = new TerrainPointerInfo()
             {
@@ -346,7 +346,7 @@ namespace Terrain
         }
 
         // Right click is released
-        public void RightButtonReleased(RaycastHit hit, IReceiveClickCast pressedObject)
+        public void RightButtonReleased(RaycastHit hit, IClickReceiver pressedObject)
         {
             var rightButtonEndInfo = new TerrainPointerInfo()
             {
@@ -363,7 +363,13 @@ namespace Terrain
                 TerrainRightButtonDragged.Invoke(rightButtonStartInfo, rightButtonEndInfo);
             }
         }
-        
+
+        public Bounds GetSelectionRect(RaycastHit hit)
+        {
+            Vector3 position = GetHitBlock(hit) + Vector3.one * 0.5f;
+            return new Bounds(position, Vector3.one * 1.02f);
+        }
+
         #endregion
     }
 }

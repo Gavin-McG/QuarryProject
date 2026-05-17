@@ -15,8 +15,9 @@ namespace GameTools.Tools
         {
             ClickRaycast.SetCastLayer(interactionLayerMask);
         }
-        
         public virtual void Deselect() {}
+        
+        public virtual void Update() {}
         
         // Terrain methods
         public virtual void TerrainLeftButtonPressed(TerrainPointerInfo info) {}

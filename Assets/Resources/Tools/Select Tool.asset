@@ -16,3 +16,4 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 192
   toolSprite: {fileID: -2112676899, guid: 753a4a1accf68e54dbb69e11141691be, type: 3}
+  selectionPrefab: {fileID: 3418120010008732152, guid: 969b2dbaea037924bb27a4d4c58b4e4c, type: 3}
