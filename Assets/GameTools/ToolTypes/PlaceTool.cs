@@ -11,6 +11,7 @@ namespace GameTools.Tools
     {
         [SerializeField] private Sprite toolSprite;
         [SerializeField] private BlockType block;
+        [SerializeField] private PointerEventData.InputButton placeButton = PointerEventData.InputButton.Left;
         
         public override Sprite Sprite => toolSprite;
         
@@ -32,6 +33,8 @@ namespace GameTools.Tools
 
         private void TerrainClick(PointerEventData eventData)
         {
+            if (eventData.button != placeButton) return;
+            
             TerrainPointerInfo startInfo = TerrainManager.GetRaycastInfo(eventData.pointerPressRaycast);
             Vector3Int startPosition = startInfo.FrontPosition;
             

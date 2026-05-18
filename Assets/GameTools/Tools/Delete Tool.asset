@@ -10,9 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: faa4a2b36e4b4530a9c65c5a0886b79a, type: 3}
-  m_Name: Mine Tool
+  m_Name: Delete Tool
   m_EditorClassIdentifier: Assembly-CSharp::GameTools.Tools.MineTool
   interactionLayerMask:
     serializedVersion: 2
     m_Bits: 64
   toolSprite: {fileID: -2052570361, guid: 753a4a1accf68e54dbb69e11141691be, type: 3}
+  outlinePrefab: {fileID: 3418120010008732152, guid: 80146ff63ee0df94cbc335145ac69a66, type: 3}
+  deleteButton: 0

@@ -14,14 +14,15 @@ namespace GameTools.Tools
         private enum HoverMode { None, Terrain, Item }
         
         [SerializeField] private Sprite toolSprite;
-        [SerializeField] private GameObject selectionPrefab;
+        [SerializeField] private GameObject outlinePrefab;
+        [SerializeField] private PointerEventData.InputButton selectButton = PointerEventData.InputButton.Left;
         
         public override Sprite Sprite => toolSprite;
         
         private MachineManager machineManager;
         private TerrainManager terrainManager;
 
-        private GameObject selectionObject;
+        private GameObject outlineObject;
         
         private HoverMode hoverMode;
         private PointerEventData cachedEventData;
@@ -32,8 +33,8 @@ namespace GameTools.Tools
             machineManager = Managers.GetManager<MachineManager>();
             terrainManager = Managers.GetManager<TerrainManager>();
             
-            selectionObject = Instantiate(selectionPrefab);
-            selectionObject.SetActive(false);
+            outlineObject = Instantiate(outlinePrefab);
+            outlineObject.SetActive(false);
             
             TerrainManager.onPointerClick.AddListener(TerrainClick);
             TerrainManager.onPointerEnter.AddListener(TerrainEnter);
@@ -46,7 +47,7 @@ namespace GameTools.Tools
         public override void Deselect()
         {
             base.Deselect();
-            Destroy(selectionObject);
+            Destroy(outlineObject);
             
             TerrainManager.onPointerClick.RemoveListener(TerrainClick);
             TerrainManager.onPointerEnter.RemoveListener(TerrainEnter);
@@ -64,22 +65,22 @@ namespace GameTools.Tools
                 {
                     TerrainPointerInfo terrainInfo = TerrainManager.GetRaycastInfo(cachedEventData.pointerCurrentRaycast);
                     Vector3Int position = terrainInfo.BackPosition;
-                    selectionObject.transform.position = position + (Vector3.one * 0.5f);
-                    selectionObject.transform.localScale = Vector3.one * 1.02f;
-                    selectionObject.SetActive(true);
+                    outlineObject.transform.position = position + (Vector3.one * 0.5f);
+                    outlineObject.transform.localScale = Vector3.one * 1.02f;
+                    outlineObject.SetActive(true);
                     break;
                 }
                 case HoverMode.Item:
                 {
                     GameObject item = cachedEventData.pointerCurrentRaycast.gameObject;
-                    selectionObject.transform.position = item.transform.position;
-                    selectionObject.transform.localScale = Vector3.one * 0.62f;
-                    selectionObject.SetActive(true);
+                    outlineObject.transform.position = item.transform.position;
+                    outlineObject.transform.localScale = Vector3.one * 0.62f;
+                    outlineObject.SetActive(true);
                     break;
                 }
                 default:
                 {
-                    selectionObject.SetActive(false);
+                    outlineObject.SetActive(false);
                     break;
                 }
             }
@@ -87,6 +88,8 @@ namespace GameTools.Tools
 
         private void TerrainClick(PointerEventData eventData)
         {
+            if (eventData.button != selectButton) return;
+            
             TerrainPointerInfo terrainInfo = TerrainManager.GetRaycastInfo(eventData.pointerCurrentRaycast);
             BlockType type = terrainManager.GetBlock(terrainInfo.BackPosition);
             
@@ -107,6 +110,8 @@ namespace GameTools.Tools
 
         private void ItemClick(ItemInstance instance, PointerEventData eventData)
         {
+            if (eventData.button != selectButton) return;
+            
             Debug.Log(instance.item);
         }
 
