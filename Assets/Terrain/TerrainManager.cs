@@ -60,6 +60,7 @@ namespace Terrain
 
         private readonly Dictionary<ChunkCoord, ChunkData> chunks = new();
         private readonly HashSet<ChunkCoord> dirtyChunks = new();
+        private NativeArray<BlockInfo> emptyChunk = new();
 
         private void Start()
         {
@@ -75,6 +76,7 @@ namespace Terrain
         private void OnDestroy()
         {
             BlockData.ClearBlockData();
+            emptyChunk.Dispose();
         }
 
         /// <summary>
@@ -83,21 +85,42 @@ namespace Terrain
         [ContextMenu("Reset Terrain")]
         private void ResetTerrain()
         {
+            // Regenerate Terrain
             foreach (KeyValuePair<ChunkCoord, ChunkData> pair in chunks)
             {
-                // Regenerate terrain
+                // Dispose of old data
+                pair.Value.blockData.Dispose();
+                
+                // Generate new data
                 Vector3Int position = pair.Key * chunkSize;
                 NativeArray<BlockInfo> chunkData = generator.GenerateTerrain(position, chunkSize);
-
-                // Update chunk
-                pair.Value.chunk.UpdateTerrain(this, chunkData, chunkSize);
-                pair.Value.blockData.Dispose();
                 pair.Value.blockData = chunkData;
+            }
+            
+            // Mark Chunks for Mesh regen.
+            foreach (KeyValuePair<ChunkCoord, ChunkData> pair in chunks)
+            {
+                ChunkCoord chunkCoord = pair.Key;
+                dirtyChunks.Add(chunkCoord);
             }
         }
 
         private void LoadInitialChunks()
         {
+            // Create empty chunk data
+            int chunkLength = chunkSize.x * chunkSize.y * chunkSize.z;
+            emptyChunk = new NativeArray<BlockInfo>(chunkLength, Allocator.Persistent);
+            for (int i = 0; i < chunkLength; i++)
+            {
+                emptyChunk[i] = new BlockInfo()
+                {
+                    blockIndex = -1,
+                    rotation = Rotation.Degrees0
+                };
+            }
+            
+            
+            // Load Chunk range
             for (int x = initialChunkMin.x; x < initialChunkMax.x; x++)
             for (int y = initialChunkMin.y; y < initialChunkMax.y; y++)
             for (int z = initialChunkMin.z; z < initialChunkMax.z; z++)
@@ -115,7 +138,6 @@ namespace Terrain
 
             // Generate chunk data
             NativeArray<BlockInfo> chunkData = generator.GenerateTerrain(position, chunkSize);
-            newChunk.UpdateTerrain(this, chunkData, chunkSize);
 
             // Add chunk
             chunks.Add(chunkCoord, new ChunkData()
@@ -123,6 +145,7 @@ namespace Terrain
                 chunk = newChunk,
                 blockData = chunkData,
             });
+            dirtyChunks.Add(chunkCoord);
         }
         
         #region Conversions
@@ -254,7 +277,15 @@ namespace Terrain
             if (oldIndex != -1) BlockRemoved.Invoke(position);
             if (newIndex != -1) BlockAdded.Invoke(position);
 
+            // Add dirty chunks
             dirtyChunks.Add(chunkCoord);
+            if (chunkPosition.x == 0) dirtyChunks.Add(chunkCoord + Vector3Int.left); // left neighbor
+            if (chunkPosition.x == chunkSize.x-1) dirtyChunks.Add(chunkCoord + Vector3Int.right); // right neighbor
+            if (chunkPosition.y == 0) dirtyChunks.Add(chunkCoord + Vector3Int.down); // down neighbor
+            if (chunkPosition.y == chunkSize.y-1) dirtyChunks.Add(chunkCoord + Vector3Int.up); // up neighbor
+            if (chunkPosition.z == 0) dirtyChunks.Add(chunkCoord + Vector3Int.back); // back neighbor
+            if (chunkPosition.z == chunkSize.z-1) dirtyChunks.Add(chunkCoord + Vector3Int.forward); // forward neighbor
+            
         }
 
         private void RegenerateDirtyChunks()
@@ -263,7 +294,25 @@ namespace Terrain
             {
                 if (chunks.TryGetValue(chunkCoord, out ChunkData chunkData))
                 {
-                    chunkData.chunk.UpdateTerrain(this, chunkData.blockData, chunkSize);
+                    NativeArray<BlockInfo> blocks = chunkData.blockData;
+                    NativeArray<BlockInfo> upBlocks = chunks.TryGetValue(chunkCoord + Vector3Int.up, out var upChunk) ? upChunk.blockData : emptyChunk;
+                    NativeArray<BlockInfo> downBlocks = chunks.TryGetValue(chunkCoord + Vector3Int.down, out var downChunk) ? downChunk.blockData : emptyChunk;
+                    NativeArray<BlockInfo> rightBlocks = chunks.TryGetValue(chunkCoord + Vector3Int.right, out var rightChunk) ? rightChunk.blockData : emptyChunk;
+                    NativeArray<BlockInfo> leftBlocks = chunks.TryGetValue(chunkCoord + Vector3Int.left, out var leftChunk) ? leftChunk.blockData : emptyChunk;
+                    NativeArray<BlockInfo> forwardBlocks = chunks.TryGetValue(chunkCoord + Vector3Int.forward, out var forwardChunk) ? forwardChunk.blockData : emptyChunk;
+                    NativeArray<BlockInfo> backBlocks = chunks.TryGetValue(chunkCoord + Vector3Int.back, out var backChunk) ? backChunk.blockData : emptyChunk;
+
+                    chunkData.chunk.UpdateTerrain(this, new TerrainData()
+                    {
+                        chunkSize = chunkSize,
+                        blocks = blocks,
+                        upBlocks = upBlocks,
+                        downBlocks = downBlocks,
+                        rightBlocks = rightBlocks,
+                        leftBlocks = leftBlocks,
+                        forwardBlocks = forwardBlocks,
+                        backBlocks = backBlocks,
+                    });
                 }
             }
             dirtyChunks.Clear();

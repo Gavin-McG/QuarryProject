@@ -667,7 +667,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 847068976274498274, guid: 11cc4badc0b07e548a1888a2410f04a1, type: 3}
       propertyPath: rangeMin.y
-      value: -256
+      value: -64
       objectReference: {fileID: 0}
     - target: {fileID: 2726930265884585088, guid: 11cc4badc0b07e548a1888a2410f04a1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -731,8 +731,24 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: b7d4db6e9a652054da7f68b6cddc6631, type: 2}
     - target: {fileID: 3115801544445981254, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
+      propertyPath: initialChunkMax.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3115801544445981254, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
+      propertyPath: initialChunkMax.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3115801544445981254, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
+      propertyPath: initialChunkMin.x
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3115801544445981254, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
       propertyPath: initialChunkMin.y
-      value: -16
+      value: -4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3115801544445981254, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
+      propertyPath: initialChunkMin.z
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 5715189363173133044, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
       propertyPath: m_Name

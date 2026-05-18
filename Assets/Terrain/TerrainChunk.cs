@@ -23,6 +23,18 @@ namespace Terrain
             return vertexAttributes;
         }
     }
+
+    public struct TerrainData
+    {
+        public Vector3Int chunkSize;
+        [ReadOnly] public NativeArray<BlockInfo> blocks;
+        [ReadOnly] public NativeArray<BlockInfo> upBlocks;
+        [ReadOnly] public NativeArray<BlockInfo> downBlocks;
+        [ReadOnly] public NativeArray<BlockInfo> leftBlocks;
+        [ReadOnly] public NativeArray<BlockInfo> rightBlocks;
+        [ReadOnly] public NativeArray<BlockInfo> forwardBlocks;
+        [ReadOnly] public NativeArray<BlockInfo> backBlocks;
+    }
     
     /// <summary>
     /// Count the number of Vertices and Indices each block will require
@@ -30,26 +42,62 @@ namespace Terrain
     [BurstCompile]
     public struct TerrainCountsJob : IJobFor
     {
-        public int xSize, ySize, zSize;
-        [ReadOnly] public NativeArray<BlockInfo> terrainData;
+        public TerrainData terrainData;
 
         public NativeArray<int> vertexCounts;
         public NativeArray<int> indexCounts;
         
         private int PositionToIndex(int x, int y, int z)
         {
-            if (x < 0 || y < 0 || z < 0 || x >= xSize || y >= ySize || z >= zSize)
-                return -1;
-            
-            return x + (y * xSize) + (z * xSize * ySize);
+            return (x) + 
+                   (y * terrainData.chunkSize.x) + 
+                   (z * terrainData.chunkSize.x * terrainData.chunkSize.y);
         }
 
         private void CheckFace(int index, int x, int y, int z)
         {
-            int checkIndex = PositionToIndex(x,y,z);
-            
-            if (checkIndex == -1 || terrainData[checkIndex].blockIndex == -1) 
-                CountFace(index);
+            // Check Left chunk
+            if (x < 0)
+            {
+                int leftCheckIndex = PositionToIndex(x + terrainData.chunkSize.x,y,z);
+                if (terrainData.leftBlocks[leftCheckIndex].blockIndex == -1) CountFace(index);
+            }
+            //Check Right chunk
+            else if (x >= terrainData.chunkSize.x)
+            {
+                int rightCheckIndex = PositionToIndex(x - terrainData.chunkSize.x,y,z);
+                if (terrainData.rightBlocks[rightCheckIndex].blockIndex == -1) CountFace(index);
+            }
+            // Check Down chunk
+            else if (y < 0)
+            {
+                int downCheckIndex = PositionToIndex(x,y + terrainData.chunkSize.y,z);
+                if (terrainData.downBlocks[downCheckIndex].blockIndex == -1) CountFace(index);
+            }
+            // Check Up chunk
+            else if (y >= terrainData.chunkSize.y)
+            {
+                int upCheckIndex = PositionToIndex(x,y - terrainData.chunkSize.y,z);
+                if (terrainData.upBlocks[upCheckIndex].blockIndex == -1) CountFace(index);
+            }
+            // Check Back chunk
+            else if (z < 0)
+            {
+                int backCheckIndex = PositionToIndex(x,y,z + terrainData.chunkSize.z);
+                if (terrainData.backBlocks[backCheckIndex].blockIndex == -1) CountFace(index);
+            }
+            // Check Front chunk
+            else if (z >= terrainData.chunkSize.z)
+            {
+                int frontCheckIndex = PositionToIndex(x,y,z - terrainData.chunkSize.z);
+                if (terrainData.forwardBlocks[frontCheckIndex].blockIndex == -1) CountFace(index);
+            }
+            // Check Main chunk
+            else
+            {
+                int checkIndex = PositionToIndex(x,y,z);
+                if (terrainData.blocks[checkIndex].blockIndex == -1) CountFace(index);
+            }
         }
 
         private void CountFace(int index)
@@ -65,12 +113,12 @@ namespace Terrain
             indexCounts[index] = 0;
             
             // Skip empty block
-            if (terrainData[index].blockIndex == -1) return;
+            if (terrainData.blocks[index].blockIndex == -1) return;
             
             // Get position from index
-            int x = index % xSize;
-            int y = (index / xSize) % ySize;
-            int z = index / (xSize * ySize);
+            int x = index % terrainData.chunkSize.x;
+            int y = (index / terrainData.chunkSize.x) % terrainData.chunkSize.y;
+            int z = index / (terrainData.chunkSize.x * terrainData.chunkSize.y);
             
             // Check 6 sides
             CheckFace(index,x+1,y,z);
@@ -136,36 +184,28 @@ namespace Terrain
     /// <summary>
     /// Populate the Vertex and index arrays of the MeshData
     /// </summary>
-    //[BurstCompile]
+    [BurstCompile]
     public struct TerrainGenerateMeshJob : IJobFor
     {
-        public int xSize, ySize, zSize;
+        public TerrainData terrainData;
 
-        [ReadOnly] public NativeArray<BlockInfo> terrainData;
-        [ReadOnly] public NativeArray<BlockType.BlockTypeInfo> blockTypes;
+        [ReadOnly] public NativeArray<BlockTypeInfo> blockTypes;
         [ReadOnly] public NativeArray<int> vertexOffsets;
         [ReadOnly] public NativeArray<int> indexOffsets;
 
         public Mesh.MeshData meshData;
 
-        private static int PositionToIndex(
-            int x,
-            int y,
-            int z,
-            int xSize,
-            int ySize,
-            int zSize)
+        private static int PositionToIndex(int x, int y, int z, int xSize, int ySize)
         {
-            if (x < 0 || y < 0 || z < 0 || x >= xSize || y >= ySize || z >= zSize)
-                return -1;
-
-            return x + (y * xSize) + (z * xSize * ySize);
+            return (x) +
+                   (y * xSize) +
+                   (z * xSize * ySize);
         }
 
         public void Execute(int index)
         {
-            int blockIndex = terrainData[index].blockIndex;
-            Rotation blockRotation = terrainData[index].rotation;
+            int blockIndex = terrainData.blocks[index].blockIndex;
+            Rotation blockRotation = terrainData.blocks[index].rotation;
 
             // Skip air
             if (blockIndex == -1)
@@ -180,19 +220,25 @@ namespace Terrain
             int currentVertex = vertexOffset;
             int currentIndex = indexOffset;
 
+            // Cache locals
+            int localXSize = terrainData.chunkSize.x;
+            int localYSize = terrainData.chunkSize.y;
+            int localZSize = terrainData.chunkSize.z;
+            
+            NativeArray<BlockInfo> blocks = terrainData.blocks;
+            NativeArray<BlockInfo> upBlocks = terrainData.upBlocks;
+            NativeArray<BlockInfo> downBlocks = terrainData.downBlocks;
+            NativeArray<BlockInfo> rightBlocks = terrainData.rightBlocks;
+            NativeArray<BlockInfo> leftBlocks = terrainData.leftBlocks;
+            NativeArray<BlockInfo> forwardBlocks = terrainData.forwardBlocks;
+            NativeArray<BlockInfo> backBlocks = terrainData.backBlocks;
+
             // Convert index -> position
-            int x = index % xSize;
-            int y = (index / xSize) % ySize;
-            int z = index / (xSize * ySize);
+            int x = index % localXSize;
+            int y = (index / localXSize) % localYSize;
+            int z = index / (localXSize * localYSize);
 
             Vector3 pos = new Vector3(x, y, z);
-            
-            // Cache locals to avoid capturing 'this'
-            int localXSize = xSize;
-            int localYSize = ySize;
-            int localZSize = zSize;
-
-            NativeArray<BlockInfo> localBlockIndexes = terrainData;
 
             // +Z
             TryAddFace(
@@ -270,7 +316,7 @@ namespace Terrain
                 int dx,
                 int dy,
                 int dz,
-                BlockType.BlockFaceData faceData,
+                BlockFaceInfo faceInfo,
                 Rotation rotation,
                 Vector3 normal,
                 Vector3 v0,
@@ -278,24 +324,92 @@ namespace Terrain
                 Vector3 v2,
                 Vector3 v3)
             {
-                int neighborIndex = PositionToIndex(
-                    x + dx,
-                    y + dy,
-                    z + dz,
-                    localXSize,
-                    localYSize,
-                    localZSize
-                );
+                int nx = x + dx;
+                int ny = y + dy;
+                int nz = z + dz;
 
-                // Skip hidden faces
-                if (neighborIndex != -1 && localBlockIndexes[neighborIndex].blockIndex != -1)
+                bool shouldRender = false;
+
+                // Check Left chunk
+                if (nx < 0)
+                {
+                    int neighborIndex = PositionToIndex(
+                        nx + localXSize, ny, nz,
+                        localXSize, localYSize
+                    );
+
+                    shouldRender =
+                        leftBlocks[neighborIndex].blockIndex == -1;
+                }
+                // Check Right chunk
+                else if (nx >= localXSize)
+                {
+                    int neighborIndex = PositionToIndex(
+                        nx - localXSize, ny, nz,
+                        localXSize, localYSize
+                    );
+
+                    shouldRender = rightBlocks[neighborIndex].blockIndex == -1;
+                }
+                // Check Down chunk
+                else if (ny < 0)
+                {
+                    int neighborIndex = PositionToIndex(
+                        nx, ny + localYSize, nz,
+                        localXSize, localYSize
+                    );
+
+                    shouldRender = downBlocks[neighborIndex].blockIndex == -1;
+                }
+                // Check Up chunk
+                else if (ny >= localYSize)
+                {
+                    int neighborIndex = PositionToIndex(
+                        nx, ny - localYSize, nz,
+                        localXSize, localYSize
+                    );
+
+                    shouldRender = upBlocks[neighborIndex].blockIndex == -1;
+                }
+                // Check Back chunk
+                else if (nz < 0)
+                {
+                    int neighborIndex = PositionToIndex(
+                        nx, ny, nz + localZSize,
+                        localXSize, localYSize
+                    );
+
+                    shouldRender = backBlocks[neighborIndex].blockIndex == -1;
+                }
+                // Check Forward chunk
+                else if (nz >= localZSize)
+                {
+                    int neighborIndex = PositionToIndex(
+                        nx, ny, nz - localZSize,
+                        localXSize, localYSize
+                    );
+
+                    shouldRender = forwardBlocks[neighborIndex].blockIndex == -1;
+                }
+                // Check Main chunk
+                else
+                {
+                    int neighborIndex = PositionToIndex(
+                        nx, ny, nz,
+                        localXSize, localYSize
+                    );
+
+                    shouldRender = blocks[neighborIndex].blockIndex == -1;
+                }
+
+                if (!shouldRender)
                     return;
 
-                AddFace(faceData, rotation, normal, v0, v1, v2, v3);
+                AddFace(faceInfo, rotation, normal, v0, v1, v2, v3);
             }
 
             void AddFace(
-                BlockType.BlockFaceData faceData,
+                BlockFaceInfo faceInfo,
                 Rotation rotation,
                 Vector3 normal,
                 Vector3 v0,
@@ -307,12 +421,12 @@ namespace Terrain
 
                 Span<Vector2> uvs = stackalloc Vector2[4]
                 {
-                    new(faceData.uMin, faceData.vMin), // 0
-                    new(faceData.uMax, faceData.vMin), // 1
-                    new(faceData.uMax, faceData.vMax), // 2
-                    new(faceData.uMin, faceData.vMax)  // 3
+                    new(faceInfo.uMin, faceInfo.vMin),
+                    new(faceInfo.uMax, faceInfo.vMin),
+                    new(faceInfo.uMax, faceInfo.vMax),
+                    new(faceInfo.uMin, faceInfo.vMax)
                 };
-                
+
                 vertices[currentVertex + 0] = new TerrainVertex
                 {
                     position = pos + v0,
@@ -364,12 +478,12 @@ namespace Terrain
 
         private TerrainManager manager;
 
-        public void UpdateTerrain(TerrainManager terrainManager, NativeArray<BlockInfo> terrain, Vector3Int size)
+        public void UpdateTerrain(TerrainManager terrainManager, TerrainData data)
         {
             manager = terrainManager;
 
             // Create terrain mesh
-            Mesh terrainMesh = GenerateTerrainMesh(terrain, size);
+            Mesh terrainMesh = GenerateTerrainMesh(data);
 
             // Assign to components
             MeshFilter meshFilter = GetComponent<MeshFilter>();
@@ -383,16 +497,16 @@ namespace Terrain
             meshCollider.sharedMesh = terrainMesh;
         }
 
-        //TODO Don't generate faces based on neighboring chunks
-        private Mesh GenerateTerrainMesh(NativeArray<BlockInfo> terrain, Vector3Int size)
+        private Mesh GenerateTerrainMesh(TerrainData terrainData)
         {
             float startTime = Time.realtimeSinceStartup;
             
             // Create Containers for the process
-            NativeArray<int> vertexCounts = new NativeArray<int>(terrain.Length, Allocator.TempJob);
-            NativeArray<int> indexCounts = new NativeArray<int>(terrain.Length, Allocator.TempJob);
-            NativeArray<int> vertexOffsets = new NativeArray<int>(terrain.Length, Allocator.TempJob);
-            NativeArray<int> indexOffsets = new NativeArray<int>(terrain.Length, Allocator.TempJob);
+            int terrainLength = terrainData.chunkSize.x * terrainData.chunkSize.y * terrainData.chunkSize.z; 
+            NativeArray<int> vertexCounts = new NativeArray<int>(terrainLength, Allocator.TempJob);
+            NativeArray<int> indexCounts = new NativeArray<int>(terrainLength, Allocator.TempJob);
+            NativeArray<int> vertexOffsets = new NativeArray<int>(terrainLength, Allocator.TempJob);
+            NativeArray<int> indexOffsets = new NativeArray<int>(terrainLength, Allocator.TempJob);
             NativeReference<int> vertexCount = new NativeReference<int>(0, Allocator.TempJob);
             NativeReference<int> indexCount = new NativeReference<int>(0, Allocator.TempJob);
             NativeArray<VertexAttributeDescriptor> vertexAttributes = TerrainVertex.GetVertexAttributes();
@@ -404,16 +518,13 @@ namespace Terrain
             // Create Jobs
             TerrainCountsJob countsJob = new()
             {
-                xSize = size.x,
-                ySize = size.y,
-                zSize = size.z,
-                terrainData =  terrain,
+                terrainData =  terrainData,
                 vertexCounts = vertexCounts,
                 indexCounts = indexCounts,
             };
             TerrainPrefixSumJob prefixSumJob = new()
             {
-                elements = terrain.Length,
+                elements = terrainLength,
                 vertexCounts = vertexCounts,
                 indexCounts = indexCounts,
                 vertexSums = vertexOffsets,
@@ -430,10 +541,7 @@ namespace Terrain
             };
             TerrainGenerateMeshJob generateMeshJob = new()
             {
-                xSize = size.x,
-                ySize = size.y,
-                zSize = size.z,
-                terrainData = terrain,
+                terrainData = terrainData,
                 blockTypes = BlockData.blockInfos,
                 vertexOffsets = vertexOffsets,
                 indexOffsets = indexOffsets,
@@ -441,10 +549,10 @@ namespace Terrain
             };
             
             // Schedule/Complete Jobs
-            JobHandle countsHandle = countsJob.ScheduleParallel(terrain.Length, 64, new JobHandle());
+            JobHandle countsHandle = countsJob.ScheduleParallel(terrainLength, 64, new JobHandle());
             JobHandle prefixSumHandle = prefixSumJob.Schedule(countsHandle);
             JobHandle setParamsHandle = setParamsJob.Schedule(prefixSumHandle);
-            JobHandle generateMeshHandle = generateMeshJob.ScheduleParallel(terrain.Length, 64, setParamsHandle);
+            JobHandle generateMeshHandle = generateMeshJob.ScheduleParallel(terrainLength, 64, setParamsHandle);
             generateMeshHandle.Complete();
             
             // Set Submesh

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using Terrain.SpriteAtlas;
+using UnityEngine;
 
 namespace Terrain.Blocks
 {
@@ -12,14 +14,24 @@ namespace Terrain.Blocks
         [SerializeField] private Sprite frontSprite;
         [SerializeField] private Sprite backSprite;
 
-        public override Sprite GetSprite(Direction direction) => direction switch
+        public override AtlasSource GetSource(Direction face) => face switch
         {
-            Direction.Up => topSprite,
-            Direction.Down => bottomSprite,
-            Direction.Left => leftSprite,
-            Direction.Right => rightSprite,
-            Direction.Forward => frontSprite,
-            _ => backSprite,
+            Direction.Up => new AtlasSource(topSprite),
+            Direction.Down => new AtlasSource(bottomSprite),
+            Direction.Left => new AtlasSource(leftSprite),
+            Direction.Right => new AtlasSource(rightSprite),
+            Direction.Forward => new AtlasSource(frontSprite),
+            _ => new AtlasSource(backSprite),
         };
+        
+        public override IEnumerable<AtlasSource> GetSources()
+        {
+            yield return new AtlasSource(topSprite);
+            yield return new AtlasSource(bottomSprite);
+            yield return new AtlasSource(leftSprite);
+            yield return new AtlasSource(rightSprite);
+            yield return new AtlasSource(frontSprite);
+            yield return new AtlasSource(backSprite);
+        }
     }
 }

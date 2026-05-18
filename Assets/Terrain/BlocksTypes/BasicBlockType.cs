@@ -1,5 +1,6 @@
-﻿using UnityEngine;
-using UnityEngine.Serialization;
+﻿using System.Collections.Generic;
+using Terrain.SpriteAtlas;
+using UnityEngine;
 
 namespace Terrain.Blocks
 {
@@ -8,6 +9,11 @@ namespace Terrain.Blocks
     {
         [SerializeField] private Sprite sprite;
         
-        public override Sprite GetSprite(Direction direction) => sprite;
+        public override AtlasSource GetSource(Direction face) => new(sprite);
+
+        public override IEnumerable<AtlasSource> GetSources()
+        {
+            yield return new AtlasSource(sprite);
+        }
     }
 }

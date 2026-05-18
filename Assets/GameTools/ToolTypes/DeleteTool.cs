@@ -10,8 +10,7 @@ namespace GameTools.Tools
     {
         [SerializeField] private Sprite toolSprite;
         [SerializeField] private GameObject outlinePrefab;
-        [SerializeField] private PointerEventData.InputButton deleteButton =
-            PointerEventData.InputButton.Left;
+        [SerializeField] private PointerEventData.InputButton deleteButton = PointerEventData.InputButton.Left;
 
         public override Sprite Sprite => toolSprite;
 
@@ -102,8 +101,7 @@ namespace GameTools.Tools
         
         private void TerrainDown(PointerEventData eventData)
         {
-            if (eventData.button != deleteButton)
-                return;
+            if (eventData.button != deleteButton) return;
 
             cachedEventData = eventData;
 
@@ -117,8 +115,7 @@ namespace GameTools.Tools
 
         private void TerrainUp(PointerEventData eventData)
         {
-            if (eventData.button != deleteButton)
-                return;
+            if (eventData.button != deleteButton) return;
 
             if (IsDragging())
             {

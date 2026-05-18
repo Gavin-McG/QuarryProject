@@ -17,3 +17,5 @@ MonoBehaviour:
     m_Bits: 64
   toolSprite: {fileID: 1690421535, guid: 753a4a1accf68e54dbb69e11141691be, type: 3}
   block: {fileID: 11400000, guid: 7d414071dd9b8a44bb3effdb560d8ced, type: 2}
+  outlinePrefab: {fileID: 3418120010008732152, guid: 9821e53b84bda6a439001035c1cf8398, type: 3}
+  placeButton: 0
