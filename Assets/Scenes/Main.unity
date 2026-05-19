@@ -729,18 +729,18 @@ PrefabInstance:
     - target: {fileID: 3115801544445981254, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
       propertyPath: generator
       value: 
-      objectReference: {fileID: 11400000, guid: 8ad638d6b951ec74fa01b352ad5dc383, type: 2}
+      objectReference: {fileID: 11400000, guid: b7d4db6e9a652054da7f68b6cddc6631, type: 2}
     - target: {fileID: 3115801544445981254, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
       propertyPath: chunkSize.x
-      value: 4
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 3115801544445981254, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
       propertyPath: chunkSize.y
-      value: 4
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 3115801544445981254, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
       propertyPath: chunkSize.z
-      value: 4
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 3115801544445981254, guid: 8310cc5be8a96884d96ce531d3e46b6b, type: 3}
       propertyPath: initialChunkMax.x

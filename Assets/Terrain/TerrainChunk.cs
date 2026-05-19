@@ -242,7 +242,6 @@ namespace Terrain
             int y = (index / localXSize) % localYSize;
             int z = index / (localXSize * localYSize);
             Vector3 pos = new Vector3(x, y, z);
-
             
             MeshType type = blocks[blockIndex].type;
 
@@ -255,10 +254,25 @@ namespace Terrain
                 {
                     int vertexIndex = meshInfo.vertexOffset + i;
                     TerrainVertex vertex = meshVertices[vertexIndex];
-                    // move Position
-                    //TODO rotate vertex position based on Rotation
+                    // Rotate/Move Position
+                    vertex.position = blockRotation switch
+                    {
+                        Rotation.Degrees90 => new Vector3(1 - vertex.position.z, vertex.position.y, vertex.position.x),
+                        Rotation.Degrees180 => new Vector3(1 - vertex.position.x, vertex.position.y, 1 - vertex.position.z),
+                        Rotation.Degrees270 => new Vector3(vertex.position.z, vertex.position.y, 1 - vertex.position.x),
+                        _ => vertex.position,
+
+                    };
                     vertex.position += pos;
-                    // scale UV
+                    // Rotate normal
+                    vertex.normal = blockRotation switch
+                    {
+                        Rotation.Degrees90 => new Vector3(-vertex.normal.z, vertex.normal.y, vertex.normal.x),
+                        Rotation.Degrees180 => new Vector3(-vertex.normal.x, vertex.normal.y, -vertex.normal.z),
+                        Rotation.Degrees270 => new Vector3(vertex.normal.z, vertex.normal.y, -vertex.normal.x),
+                        _ => vertex.normal,
+                    };
+                    // Scale/Move UV
                     vertex.uv *= meshInfo.uvScale;
                     vertex.uv += meshInfo.uvPosition;
                     vertices[vertexOffset + i] = vertex;

@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 54f4a0c6d83f489ba1e1e8f945832fad, type: 3}
-  m_Name: Sphere Block
+  m_Name: Mesh Conveyer Straight
   m_EditorClassIdentifier: Terrain::Terrain.Blocks.MeshBlockType
-  blockName: Sphere Block
-  mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  texture: {fileID: 2800000, guid: 63cf228c1ca4b954fb78e9f3b3a295d9, type: 3}
+  blockName: Conveyer Straight
+  mesh: {fileID: -7717246894593095018, guid: 6b789ea43cf478e4e8b8ca4649c86048, type: 3}
+  texture: {fileID: 2800000, guid: ef2801a45fea6104a9d6f3575646e654, type: 3}

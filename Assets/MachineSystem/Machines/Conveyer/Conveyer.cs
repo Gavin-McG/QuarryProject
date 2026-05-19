@@ -16,7 +16,7 @@ namespace MachineSystem.Machines.Conveyer
         {
             node = new ItemNode()
             {
-                position = transform.position + Vector3.up*0.5f,
+                position = transform.position + Vector3.up*0.2f,
             };
         }
 
