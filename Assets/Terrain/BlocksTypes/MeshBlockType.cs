@@ -10,7 +10,8 @@ namespace Terrain.Blocks
         [SerializeField] private Mesh mesh;
         [SerializeField] private Texture2D texture;
         
-        public override MeshType GetMeshType() => MeshType.Mesh;
+        public override MeshType MeshType => MeshType.Mesh;
+        public override bool FullBlock => false;
         
         public override AtlasSource GetSource(Direction face) => new(texture);
 

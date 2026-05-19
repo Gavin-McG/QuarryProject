@@ -18,6 +18,7 @@ namespace Terrain
         public BlockFaceInfo forwardFace;
         public BlockFaceInfo backFace;
         public int meshIndex;
+        public bool fullBlock;
 
         public BlockFaceInfo GetFace(Direction direction) => direction switch
         {

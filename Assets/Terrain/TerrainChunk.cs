@@ -56,49 +56,61 @@ namespace Terrain
                    (z * terrainData.chunkSize.x * terrainData.chunkSize.y);
         }
 
+        private bool IsFullBlock(int blockIndex)
+        {
+            return blockIndex != -1 && blocks[blockIndex].fullBlock;
+        }
+
         private void CheckFace(int index, int x, int y, int z)
         {
             // Check Left chunk
             if (x < 0)
             {
                 int leftCheckIndex = PositionToIndex(x + terrainData.chunkSize.x,y,z);
-                if (terrainData.leftBlocks[leftCheckIndex].blockIndex == -1) CountFace(index);
+                int leftBlockIndex = terrainData.leftBlocks[leftCheckIndex].blockIndex;
+                if (!IsFullBlock(leftBlockIndex)) CountFace(index);
             }
             //Check Right chunk
             else if (x >= terrainData.chunkSize.x)
             {
                 int rightCheckIndex = PositionToIndex(x - terrainData.chunkSize.x,y,z);
-                if (terrainData.rightBlocks[rightCheckIndex].blockIndex == -1) CountFace(index);
+                int rightBlockIndex = terrainData.rightBlocks[rightCheckIndex].blockIndex;
+                if (!IsFullBlock(rightBlockIndex)) CountFace(index);
             }
             // Check Down chunk
             else if (y < 0)
             {
                 int downCheckIndex = PositionToIndex(x,y + terrainData.chunkSize.y,z);
-                if (terrainData.downBlocks[downCheckIndex].blockIndex == -1) CountFace(index);
+                int downBlockIndex = terrainData.downBlocks[downCheckIndex].blockIndex;
+                if (!IsFullBlock(downBlockIndex)) CountFace(index);
             }
             // Check Up chunk
             else if (y >= terrainData.chunkSize.y)
             {
                 int upCheckIndex = PositionToIndex(x,y - terrainData.chunkSize.y,z);
-                if (terrainData.upBlocks[upCheckIndex].blockIndex == -1) CountFace(index);
+                int upBlockIndex = terrainData.upBlocks[upCheckIndex].blockIndex;
+                if (!IsFullBlock(upBlockIndex)) CountFace(index);
             }
             // Check Back chunk
             else if (z < 0)
             {
                 int backCheckIndex = PositionToIndex(x,y,z + terrainData.chunkSize.z);
-                if (terrainData.backBlocks[backCheckIndex].blockIndex == -1) CountFace(index);
+                int backBlockIndex = terrainData.backBlocks[backCheckIndex].blockIndex;
+                if (!IsFullBlock(backBlockIndex)) CountFace(index);
             }
             // Check Front chunk
             else if (z >= terrainData.chunkSize.z)
             {
                 int frontCheckIndex = PositionToIndex(x,y,z - terrainData.chunkSize.z);
-                if (terrainData.forwardBlocks[frontCheckIndex].blockIndex == -1) CountFace(index);
+                int frontBlockIndex = terrainData.forwardBlocks[frontCheckIndex].blockIndex;
+                if (!IsFullBlock(frontBlockIndex)) CountFace(index);
             }
             // Check Main chunk
             else
             {
                 int checkIndex = PositionToIndex(x,y,z);
-                if (terrainData.blocks[checkIndex].blockIndex == -1) CountFace(index);
+                int blockIndex = terrainData.blocks[checkIndex].blockIndex;
+                if (!IsFullBlock(blockIndex)) CountFace(index);
             }
         }
 
@@ -211,6 +223,11 @@ namespace Terrain
         [ReadOnly] public NativeArray<int> indexOffsets;
 
         public Mesh.MeshData meshData;
+        
+        private static bool IsFullBlock(NativeArray<BlockTypeInfo> blocks, int blockIndex)
+        {
+            return blockIndex != -1 && blocks[blockIndex].fullBlock;
+        }
 
         private static int PositionToIndex(int x, int y, int z, int xSize, int ySize)
         {
@@ -287,6 +304,7 @@ namespace Terrain
             else if (type == MeshType.Cube)
             {
                 // Cache locals
+                NativeArray<BlockTypeInfo> blockTypes = blocks;
                 NativeArray<BlockInfo> chunk = terrainData.blocks;
                 NativeArray<BlockInfo> upChunk = terrainData.upBlocks;
                 NativeArray<BlockInfo> downChunk = terrainData.downBlocks;
@@ -386,7 +404,7 @@ namespace Terrain
                     int ny = y + dy;
                     int nz = z + dz;
 
-                    bool shouldRender = false;
+                    bool shouldRender;
 
                     // Check Left chunk
                     if (nx < 0)
@@ -395,9 +413,9 @@ namespace Terrain
                             nx + localXSize, ny, nz,
                             localXSize, localYSize
                         );
+                        int neighborBlockIndex = leftChunk[neighborIndex].blockIndex;
 
-                        shouldRender =
-                            leftChunk[neighborIndex].blockIndex == -1;
+                        shouldRender = !IsFullBlock(blockTypes, neighborBlockIndex);
                     }
                     // Check Right chunk
                     else if (nx >= localXSize)
@@ -406,8 +424,9 @@ namespace Terrain
                             nx - localXSize, ny, nz,
                             localXSize, localYSize
                         );
+                        int neighborBlockIndex = rightChunk[neighborIndex].blockIndex;
 
-                        shouldRender = rightChunk[neighborIndex].blockIndex == -1;
+                        shouldRender = !IsFullBlock(blockTypes, neighborBlockIndex);
                     }
                     // Check Down chunk
                     else if (ny < 0)
@@ -416,8 +435,9 @@ namespace Terrain
                             nx, ny + localYSize, nz,
                             localXSize, localYSize
                         );
+                        int neighborBlockIndex = downChunk[neighborIndex].blockIndex;
 
-                        shouldRender = downChunk[neighborIndex].blockIndex == -1;
+                        shouldRender = !IsFullBlock(blockTypes, neighborBlockIndex);
                     }
                     // Check Up chunk
                     else if (ny >= localYSize)
@@ -426,8 +446,9 @@ namespace Terrain
                             nx, ny - localYSize, nz,
                             localXSize, localYSize
                         );
+                        int neighborBlockIndex = upChunk[neighborIndex].blockIndex;
 
-                        shouldRender = upChunk[neighborIndex].blockIndex == -1;
+                        shouldRender = !IsFullBlock(blockTypes, neighborBlockIndex);
                     }
                     // Check Back chunk
                     else if (nz < 0)
@@ -436,8 +457,9 @@ namespace Terrain
                             nx, ny, nz + localZSize,
                             localXSize, localYSize
                         );
+                        int neighborBlockIndex = backChunk[neighborIndex].blockIndex;
 
-                        shouldRender = backChunk[neighborIndex].blockIndex == -1;
+                        shouldRender = !IsFullBlock(blockTypes, neighborBlockIndex);
                     }
                     // Check Forward chunk
                     else if (nz >= localZSize)
@@ -446,8 +468,9 @@ namespace Terrain
                             nx, ny, nz - localZSize,
                             localXSize, localYSize
                         );
+                        int neighborBlockIndex = forwardChunk[neighborIndex].blockIndex;
 
-                        shouldRender = forwardChunk[neighborIndex].blockIndex == -1;
+                        shouldRender = !IsFullBlock(blockTypes, neighborBlockIndex);
                     }
                     // Check Main chunk
                     else
@@ -456,8 +479,9 @@ namespace Terrain
                             nx, ny, nz,
                             localXSize, localYSize
                         );
+                        int neighborBlockIndex = chunk[neighborIndex].blockIndex;
 
-                        shouldRender = chunk[neighborIndex].blockIndex == -1;
+                        shouldRender = !IsFullBlock(blockTypes, neighborBlockIndex);
                     }
 
                     if (!shouldRender)

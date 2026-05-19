@@ -53,7 +53,7 @@ namespace Terrain
             int totalIndices = 0;
             foreach (var block in blocks)
             {
-                if (block.GetMeshType() == MeshType.Mesh)
+                if (block.MeshType == MeshType.Mesh)
                 {
                     // Add MeshInfo if not previously added
                     BlockMesh meshData = block.GetMesh();
@@ -118,7 +118,7 @@ namespace Terrain
             blockInfos = new NativeArray<BlockTypeInfo>(blocks.Length, Allocator.Persistent);
             for (int i = 0; i < blocks.Length; i++)
             {
-                MeshType meshType = blocks[i].GetMeshType();
+                MeshType meshType = blocks[i].MeshType;
                 int meshIndex = meshType == MeshType.Mesh ? meshToIndex[blocks[i].GetMesh().mesh] : -1;
                 blockInfos[i] = new BlockTypeInfo()
                 {
@@ -130,6 +130,7 @@ namespace Terrain
                     forwardFace = GetFaceData(blocks[i], Direction.Forward),
                     backFace = GetFaceData(blocks[i], Direction.Back),
                     meshIndex = meshIndex,
+                    fullBlock = blocks[i].FullBlock
                 };
 
                 BlockFaceInfo GetFaceData(BlockType block, Direction direction)
