@@ -5,17 +5,18 @@ namespace Terrain
     {
         public float uMin, uMax, vMin, vMax;
     }
+    
+    public enum MeshType { Cube, Mesh, }
 
     public struct BlockTypeInfo
     {
+        public MeshType type;
         public BlockFaceInfo upFace;
         public BlockFaceInfo downFace;
         public BlockFaceInfo leftFace;
         public BlockFaceInfo rightFace;
         public BlockFaceInfo forwardFace;
         public BlockFaceInfo backFace;
-        public bool fullBlock;
-        public bool customMesh;
         public int meshIndex;
 
         public BlockFaceInfo GetFace(Direction direction) => direction switch

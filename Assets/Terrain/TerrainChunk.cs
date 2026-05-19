@@ -43,6 +43,8 @@ namespace Terrain
     public struct TerrainCountsJob : IJobFor
     {
         public TerrainData terrainData;
+        [ReadOnly] public NativeArray<BlockTypeInfo> blocks;
+        [ReadOnly] public NativeArray<BlockMeshInfo> meshes;
 
         public NativeArray<int> vertexCounts;
         public NativeArray<int> indexCounts;
@@ -113,20 +115,32 @@ namespace Terrain
             indexCounts[index] = 0;
             
             // Skip empty block
-            if (terrainData.blocks[index].blockIndex == -1) return;
+            int blockIndex = terrainData.blocks[index].blockIndex;
+            if (blockIndex == -1) return;
+
+            MeshType type = blocks[blockIndex].type;
+
+            if (type == MeshType.Mesh)
+            {
+                int meshIndex = blocks[blockIndex].meshIndex;
+                vertexCounts[index] = meshes[meshIndex].vertexCount;
+                indexCounts[index] = meshes[meshIndex].indexCount;
+            }
+            else if (type == MeshType.Cube)
+            {
+                // Get position from index
+                int x = index % terrainData.chunkSize.x;
+                int y = (index / terrainData.chunkSize.x) % terrainData.chunkSize.y;
+                int z = index / (terrainData.chunkSize.x * terrainData.chunkSize.y);
             
-            // Get position from index
-            int x = index % terrainData.chunkSize.x;
-            int y = (index / terrainData.chunkSize.x) % terrainData.chunkSize.y;
-            int z = index / (terrainData.chunkSize.x * terrainData.chunkSize.y);
-            
-            // Check 6 sides
-            CheckFace(index,x+1,y,z);
-            CheckFace(index,x-1,y,z);
-            CheckFace(index,x,y+1,z);
-            CheckFace(index,x,y-1,z);
-            CheckFace(index,x,y,z+1);
-            CheckFace(index,x,y,z-1);
+                // Check 6 sides
+                CheckFace(index,x+1,y,z);
+                CheckFace(index,x-1,y,z);
+                CheckFace(index,x,y+1,z);
+                CheckFace(index,x,y-1,z);
+                CheckFace(index,x,y,z+1);
+                CheckFace(index,x,y,z-1);
+            }
         }
     }
 
@@ -189,7 +203,10 @@ namespace Terrain
     {
         public TerrainData terrainData;
 
-        [ReadOnly] public NativeArray<BlockTypeInfo> blockTypes;
+        [ReadOnly] public NativeArray<BlockTypeInfo> blocks;
+        [ReadOnly] public NativeArray<BlockMeshInfo> meshes;
+        [ReadOnly] public NativeArray<TerrainVertex> meshVertices;
+        [ReadOnly] public NativeArray<int> meshIndices;
         [ReadOnly] public NativeArray<int> vertexOffsets;
         [ReadOnly] public NativeArray<int> indexOffsets;
 
@@ -208,263 +225,287 @@ namespace Terrain
             Rotation blockRotation = terrainData.blocks[index].rotation;
 
             // Skip air
-            if (blockIndex == -1)
-                return;
+            if (blockIndex == -1) return;
 
             NativeArray<TerrainVertex> vertices = meshData.GetVertexData<TerrainVertex>(0);
             NativeArray<int> indices = meshData.GetIndexData<int>();
 
             int vertexOffset = vertexOffsets[index];
             int indexOffset = indexOffsets[index];
-
-            int currentVertex = vertexOffset;
-            int currentIndex = indexOffset;
-
-            // Cache locals
+            
+            // Convert index -> position
             int localXSize = terrainData.chunkSize.x;
             int localYSize = terrainData.chunkSize.y;
             int localZSize = terrainData.chunkSize.z;
             
-            NativeArray<BlockInfo> blocks = terrainData.blocks;
-            NativeArray<BlockInfo> upBlocks = terrainData.upBlocks;
-            NativeArray<BlockInfo> downBlocks = terrainData.downBlocks;
-            NativeArray<BlockInfo> rightBlocks = terrainData.rightBlocks;
-            NativeArray<BlockInfo> leftBlocks = terrainData.leftBlocks;
-            NativeArray<BlockInfo> forwardBlocks = terrainData.forwardBlocks;
-            NativeArray<BlockInfo> backBlocks = terrainData.backBlocks;
-
-            // Convert index -> position
             int x = index % localXSize;
             int y = (index / localXSize) % localYSize;
             int z = index / (localXSize * localYSize);
-
             Vector3 pos = new Vector3(x, y, z);
 
-            // +Z
-            TryAddFace(
-                0, 0, 1,
-                blockTypes[blockIndex].GetFace(Direction.Forward, blockRotation),
-                Rotation.Degrees0,
-                Vector3.forward,
-                new Vector3(0, 0, 1),
-                new Vector3(1, 0, 1),
-                new Vector3(1, 1, 1),
-                new Vector3(0, 1, 1)
-            );
+            
+            MeshType type = blocks[blockIndex].type;
 
-            // -Z
-            TryAddFace(
-                0, 0, -1,
-                blockTypes[blockIndex].GetFace(Direction.Back, blockRotation),
-                Rotation.Degrees0,
-                Vector3.back,
-                new Vector3(1, 0, 0),
-                new Vector3(0, 0, 0),
-                new Vector3(0, 1, 0),
-                new Vector3(1, 1, 0)
-            );
-
-            // -X
-            TryAddFace(
-                -1, 0, 0,
-                blockTypes[blockIndex].GetFace(Direction.Left, blockRotation),
-                Rotation.Degrees0,
-                Vector3.left,
-                new Vector3(0, 0, 0),
-                new Vector3(0, 0, 1),
-                new Vector3(0, 1, 1),
-                new Vector3(0, 1, 0)
-            );
-
-            // +X
-            TryAddFace(
-                1, 0, 0,
-                blockTypes[blockIndex].GetFace(Direction.Right, blockRotation),
-                Rotation.Degrees0,
-                Vector3.right,
-                new Vector3(1, 0, 1),
-                new Vector3(1, 0, 0),
-                new Vector3(1, 1, 0),
-                new Vector3(1, 1, 1)
-            );
-
-            // +Y
-            TryAddFace(
-                0, 1, 0,
-                blockTypes[blockIndex].GetFace(Direction.Up, blockRotation),
-                blockRotation,
-                Vector3.up,
-                new Vector3(0, 1, 1),
-                new Vector3(1, 1, 1),
-                new Vector3(1, 1, 0),
-                new Vector3(0, 1, 0)
-            );
-
-            // -Y
-            TryAddFace(
-                0, -1, 0,
-                blockTypes[blockIndex].GetFace(Direction.Down, blockRotation),
-                blockRotation,
-                Vector3.down,
-                new Vector3(0, 0, 0),
-                new Vector3(1, 0, 0),
-                new Vector3(1, 0, 1),
-                new Vector3(0, 0, 1)
-            );
-
-            void TryAddFace(
-                int dx,
-                int dy,
-                int dz,
-                BlockFaceInfo faceInfo,
-                Rotation rotation,
-                Vector3 normal,
-                Vector3 v0,
-                Vector3 v1,
-                Vector3 v2,
-                Vector3 v3)
+            if (type == MeshType.Mesh)
             {
-                int nx = x + dx;
-                int ny = y + dy;
-                int nz = z + dz;
-
-                bool shouldRender = false;
-
-                // Check Left chunk
-                if (nx < 0)
+                int meshIndex = blocks[blockIndex].meshIndex;
+                BlockMeshInfo meshInfo = meshes[meshIndex];
+                // Copy mesh Vertices
+                for (int i = 0; i < meshInfo.vertexCount; i++)
                 {
-                    int neighborIndex = PositionToIndex(
-                        nx + localXSize, ny, nz,
-                        localXSize, localYSize
-                    );
-
-                    shouldRender =
-                        leftBlocks[neighborIndex].blockIndex == -1;
+                    //TODO rotate vertex position based on Rotation
+                    int vertexIndex = meshInfo.vertexOffset + i;
+                    TerrainVertex vertex = meshVertices[vertexIndex];
+                    vertex.position += pos;
+                    vertices[vertexOffset + i] = vertex;
                 }
-                // Check Right chunk
-                else if (nx >= localXSize)
+                // Copy mesh Indices
+                for (int i = 0; i < meshInfo.indexCount; i++)
                 {
-                    int neighborIndex = PositionToIndex(
-                        nx - localXSize, ny, nz,
-                        localXSize, localYSize
-                    );
-
-                    shouldRender = rightBlocks[neighborIndex].blockIndex == -1;
+                    int indexIndex = meshInfo.indexOffset + i;
+                    indices[indexOffset + i] = meshIndices[indexIndex] + vertexOffset;
                 }
-                // Check Down chunk
-                else if (ny < 0)
-                {
-                    int neighborIndex = PositionToIndex(
-                        nx, ny + localYSize, nz,
-                        localXSize, localYSize
-                    );
-
-                    shouldRender = downBlocks[neighborIndex].blockIndex == -1;
-                }
-                // Check Up chunk
-                else if (ny >= localYSize)
-                {
-                    int neighborIndex = PositionToIndex(
-                        nx, ny - localYSize, nz,
-                        localXSize, localYSize
-                    );
-
-                    shouldRender = upBlocks[neighborIndex].blockIndex == -1;
-                }
-                // Check Back chunk
-                else if (nz < 0)
-                {
-                    int neighborIndex = PositionToIndex(
-                        nx, ny, nz + localZSize,
-                        localXSize, localYSize
-                    );
-
-                    shouldRender = backBlocks[neighborIndex].blockIndex == -1;
-                }
-                // Check Forward chunk
-                else if (nz >= localZSize)
-                {
-                    int neighborIndex = PositionToIndex(
-                        nx, ny, nz - localZSize,
-                        localXSize, localYSize
-                    );
-
-                    shouldRender = forwardBlocks[neighborIndex].blockIndex == -1;
-                }
-                // Check Main chunk
-                else
-                {
-                    int neighborIndex = PositionToIndex(
-                        nx, ny, nz,
-                        localXSize, localYSize
-                    );
-
-                    shouldRender = blocks[neighborIndex].blockIndex == -1;
-                }
-
-                if (!shouldRender)
-                    return;
-
-                AddFace(faceInfo, rotation, normal, v0, v1, v2, v3);
             }
-
-            void AddFace(
-                BlockFaceInfo faceInfo,
-                Rotation rotation,
-                Vector3 normal,
-                Vector3 v0,
-                Vector3 v1,
-                Vector3 v2,
-                Vector3 v3)
+            else if (type == MeshType.Cube)
             {
-                int rotationIndex = RotationUtility.GetRotationIndex(rotation);
+                // Cache locals
+                NativeArray<BlockInfo> chunk = terrainData.blocks;
+                NativeArray<BlockInfo> upChunk = terrainData.upBlocks;
+                NativeArray<BlockInfo> downChunk = terrainData.downBlocks;
+                NativeArray<BlockInfo> rightChunk = terrainData.rightBlocks;
+                NativeArray<BlockInfo> leftChunk = terrainData.leftBlocks;
+                NativeArray<BlockInfo> forwardChunk = terrainData.forwardBlocks;
+                NativeArray<BlockInfo> backChunk = terrainData.backBlocks;
+                
+                int currentVertex = vertexOffset;
+                int currentIndex = indexOffset;
 
-                Span<Vector2> uvs = stackalloc Vector2[4]
+                // +Z
+                TryAddFace(
+                    0, 0, 1,
+                    this.blocks[blockIndex].GetFace(Direction.Forward, blockRotation),
+                    Rotation.Degrees0,
+                    Vector3.forward,
+                    new Vector3(0, 0, 1),
+                    new Vector3(1, 0, 1),
+                    new Vector3(1, 1, 1),
+                    new Vector3(0, 1, 1)
+                );
+
+                // -Z
+                TryAddFace(
+                    0, 0, -1,
+                    this.blocks[blockIndex].GetFace(Direction.Back, blockRotation),
+                    Rotation.Degrees0,
+                    Vector3.back,
+                    new Vector3(1, 0, 0),
+                    new Vector3(0, 0, 0),
+                    new Vector3(0, 1, 0),
+                    new Vector3(1, 1, 0)
+                );
+
+                // -X
+                TryAddFace(
+                    -1, 0, 0,
+                    this.blocks[blockIndex].GetFace(Direction.Left, blockRotation),
+                    Rotation.Degrees0,
+                    Vector3.left,
+                    new Vector3(0, 0, 0),
+                    new Vector3(0, 0, 1),
+                    new Vector3(0, 1, 1),
+                    new Vector3(0, 1, 0)
+                );
+
+                // +X
+                TryAddFace(
+                    1, 0, 0,
+                    this.blocks[blockIndex].GetFace(Direction.Right, blockRotation),
+                    Rotation.Degrees0,
+                    Vector3.right,
+                    new Vector3(1, 0, 1),
+                    new Vector3(1, 0, 0),
+                    new Vector3(1, 1, 0),
+                    new Vector3(1, 1, 1)
+                );
+
+                // +Y
+                TryAddFace(
+                    0, 1, 0,
+                    this.blocks[blockIndex].GetFace(Direction.Up, blockRotation),
+                    blockRotation,
+                    Vector3.up,
+                    new Vector3(0, 1, 1),
+                    new Vector3(1, 1, 1),
+                    new Vector3(1, 1, 0),
+                    new Vector3(0, 1, 0)
+                );
+
+                // -Y
+                TryAddFace(
+                    0, -1, 0,
+                    this.blocks[blockIndex].GetFace(Direction.Down, blockRotation),
+                    blockRotation,
+                    Vector3.down,
+                    new Vector3(0, 0, 0),
+                    new Vector3(1, 0, 0),
+                    new Vector3(1, 0, 1),
+                    new Vector3(0, 0, 1)
+                );
+
+                void TryAddFace(
+                    int dx,
+                    int dy,
+                    int dz,
+                    BlockFaceInfo faceInfo,
+                    Rotation rotation,
+                    Vector3 normal,
+                    Vector3 v0,
+                    Vector3 v1,
+                    Vector3 v2,
+                    Vector3 v3)
                 {
-                    new(faceInfo.uMin, faceInfo.vMin),
-                    new(faceInfo.uMax, faceInfo.vMin),
-                    new(faceInfo.uMax, faceInfo.vMax),
-                    new(faceInfo.uMin, faceInfo.vMax)
-                };
+                    int nx = x + dx;
+                    int ny = y + dy;
+                    int nz = z + dz;
 
-                vertices[currentVertex + 0] = new TerrainVertex
+                    bool shouldRender = false;
+
+                    // Check Left chunk
+                    if (nx < 0)
+                    {
+                        int neighborIndex = PositionToIndex(
+                            nx + localXSize, ny, nz,
+                            localXSize, localYSize
+                        );
+
+                        shouldRender =
+                            leftChunk[neighborIndex].blockIndex == -1;
+                    }
+                    // Check Right chunk
+                    else if (nx >= localXSize)
+                    {
+                        int neighborIndex = PositionToIndex(
+                            nx - localXSize, ny, nz,
+                            localXSize, localYSize
+                        );
+
+                        shouldRender = rightChunk[neighborIndex].blockIndex == -1;
+                    }
+                    // Check Down chunk
+                    else if (ny < 0)
+                    {
+                        int neighborIndex = PositionToIndex(
+                            nx, ny + localYSize, nz,
+                            localXSize, localYSize
+                        );
+
+                        shouldRender = downChunk[neighborIndex].blockIndex == -1;
+                    }
+                    // Check Up chunk
+                    else if (ny >= localYSize)
+                    {
+                        int neighborIndex = PositionToIndex(
+                            nx, ny - localYSize, nz,
+                            localXSize, localYSize
+                        );
+
+                        shouldRender = upChunk[neighborIndex].blockIndex == -1;
+                    }
+                    // Check Back chunk
+                    else if (nz < 0)
+                    {
+                        int neighborIndex = PositionToIndex(
+                            nx, ny, nz + localZSize,
+                            localXSize, localYSize
+                        );
+
+                        shouldRender = backChunk[neighborIndex].blockIndex == -1;
+                    }
+                    // Check Forward chunk
+                    else if (nz >= localZSize)
+                    {
+                        int neighborIndex = PositionToIndex(
+                            nx, ny, nz - localZSize,
+                            localXSize, localYSize
+                        );
+
+                        shouldRender = forwardChunk[neighborIndex].blockIndex == -1;
+                    }
+                    // Check Main chunk
+                    else
+                    {
+                        int neighborIndex = PositionToIndex(
+                            nx, ny, nz,
+                            localXSize, localYSize
+                        );
+
+                        shouldRender = chunk[neighborIndex].blockIndex == -1;
+                    }
+
+                    if (!shouldRender)
+                        return;
+
+                    AddFace(faceInfo, rotation, normal, v0, v1, v2, v3);
+                }
+
+                void AddFace(
+                    BlockFaceInfo faceInfo,
+                    Rotation rotation,
+                    Vector3 normal,
+                    Vector3 v0,
+                    Vector3 v1,
+                    Vector3 v2,
+                    Vector3 v3)
                 {
-                    position = pos + v0,
-                    normal = normal,
-                    uv = uvs[(0 + rotationIndex) & 3]
-                };
+                    int rotationIndex = RotationUtility.GetRotationIndex(rotation);
 
-                vertices[currentVertex + 1] = new TerrainVertex
-                {
-                    position = pos + v1,
-                    normal = normal,
-                    uv = uvs[(1 + rotationIndex) & 3]
-                };
+                    Span<Vector2> uvs = stackalloc Vector2[4]
+                    {
+                        new(faceInfo.uMin, faceInfo.vMin),
+                        new(faceInfo.uMax, faceInfo.vMin),
+                        new(faceInfo.uMax, faceInfo.vMax),
+                        new(faceInfo.uMin, faceInfo.vMax)
+                    };
 
-                vertices[currentVertex + 2] = new TerrainVertex
-                {
-                    position = pos + v2,
-                    normal = normal,
-                    uv = uvs[(2 + rotationIndex) & 3]
-                };
+                    vertices[currentVertex + 0] = new TerrainVertex
+                    {
+                        position = pos + v0,
+                        normal = normal,
+                        uv = uvs[(0 + rotationIndex) & 3]
+                    };
 
-                vertices[currentVertex + 3] = new TerrainVertex
-                {
-                    position = pos + v3,
-                    normal = normal,
-                    uv = uvs[(3 + rotationIndex) & 3]
-                };
+                    vertices[currentVertex + 1] = new TerrainVertex
+                    {
+                        position = pos + v1,
+                        normal = normal,
+                        uv = uvs[(1 + rotationIndex) & 3]
+                    };
 
-                indices[currentIndex + 0] = currentVertex + 0;
-                indices[currentIndex + 1] = currentVertex + 1;
-                indices[currentIndex + 2] = currentVertex + 2;
+                    vertices[currentVertex + 2] = new TerrainVertex
+                    {
+                        position = pos + v2,
+                        normal = normal,
+                        uv = uvs[(2 + rotationIndex) & 3]
+                    };
 
-                indices[currentIndex + 3] = currentVertex + 2;
-                indices[currentIndex + 4] = currentVertex + 3;
-                indices[currentIndex + 5] = currentVertex + 0;
+                    vertices[currentVertex + 3] = new TerrainVertex
+                    {
+                        position = pos + v3,
+                        normal = normal,
+                        uv = uvs[(3 + rotationIndex) & 3]
+                    };
 
-                currentVertex += 4;
-                currentIndex += 6;
+                    indices[currentIndex + 0] = currentVertex + 0;
+                    indices[currentIndex + 1] = currentVertex + 1;
+                    indices[currentIndex + 2] = currentVertex + 2;
+
+                    indices[currentIndex + 3] = currentVertex + 2;
+                    indices[currentIndex + 4] = currentVertex + 3;
+                    indices[currentIndex + 5] = currentVertex + 0;
+
+                    currentVertex += 4;
+                    currentIndex += 6;
+                }
             }
         }
     }
@@ -519,6 +560,8 @@ namespace Terrain
             TerrainCountsJob countsJob = new()
             {
                 terrainData =  terrainData,
+                blocks = BlockData.blockInfos,
+                meshes = BlockData.meshInfos,
                 vertexCounts = vertexCounts,
                 indexCounts = indexCounts,
             };
@@ -542,7 +585,10 @@ namespace Terrain
             TerrainGenerateMeshJob generateMeshJob = new()
             {
                 terrainData = terrainData,
-                blockTypes = BlockData.blockInfos,
+                blocks = BlockData.blockInfos,
+                meshes = BlockData.meshInfos,
+                meshVertices = BlockData.meshVertices,
+                meshIndices = BlockData.meshIndices,
                 vertexOffsets = vertexOffsets,
                 indexOffsets = indexOffsets,
                 meshData = meshData,

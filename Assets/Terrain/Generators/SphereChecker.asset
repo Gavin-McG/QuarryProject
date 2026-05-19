@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 676a44eeab404b03b8d488f208c83e79, type: 3}
+  m_Name: SphereChecker
+  m_EditorClassIdentifier: Assembly-CSharp::CheckerTerrainGenerator
+  block1: {fileID: 11400000, guid: 676b9d7a29b0ea049a0a85b201c2da15, type: 2}
+  block2: {fileID: 11400000, guid: 9bf7ed35fef2c8a4fb0fa536c145710d, type: 2}

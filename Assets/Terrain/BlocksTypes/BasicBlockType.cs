@@ -15,5 +15,10 @@ namespace Terrain.Blocks
         {
             yield return new AtlasSource(sprite);
         }
+
+        public override BlockMesh GetMesh()
+        {
+            return null;
+        }
     }
 }

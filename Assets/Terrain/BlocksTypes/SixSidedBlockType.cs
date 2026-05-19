@@ -33,5 +33,10 @@ namespace Terrain.Blocks
             yield return new AtlasSource(frontSprite);
             yield return new AtlasSource(backSprite);
         }
+        
+        public override BlockMesh GetMesh()
+        {
+            return null;
+        }
     }
 }

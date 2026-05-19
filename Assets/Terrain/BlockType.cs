@@ -8,8 +8,10 @@ namespace Terrain
     {
         [SerializeField] public string blockName;
         
+        public virtual MeshType GetMeshType() => MeshType.Cube;
         public abstract AtlasSource GetSource(Direction face);
         public abstract IEnumerable<AtlasSource> GetSources();
+        public abstract BlockMesh GetMesh();
         
         public int Index { get; set; }
     }
