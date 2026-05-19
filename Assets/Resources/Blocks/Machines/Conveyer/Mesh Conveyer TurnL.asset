@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Mesh Conveyer TurnL
   m_EditorClassIdentifier: Terrain::Terrain.Blocks.MeshBlockType
   blockName: Conveyer Straight
-  mesh: {fileID: 4359955169101833729, guid: 6b789ea43cf478e4e8b8ca4649c86048, type: 3}
+  mesh: {fileID: -4972210076403031713, guid: 6b789ea43cf478e4e8b8ca4649c86048, type: 3}
   texture: {fileID: 2800000, guid: ef2801a45fea6104a9d6f3575646e654, type: 3}

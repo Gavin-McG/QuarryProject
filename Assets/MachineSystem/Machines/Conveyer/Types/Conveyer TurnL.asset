@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05070c050179440fb7b707ffa408e986, type: 3}
   m_Name: Conveyer TurnL
   m_EditorClassIdentifier: Assembly-CSharp::MachineSystem.Machines.ConveyerType
-  block: {fileID: 11400000, guid: be193e751084b124b92a02a21d19995b, type: 2}
+  block: {fileID: 11400000, guid: ef071dff02790f045aae8019dd1244d9, type: 2}
   prefab: {fileID: 597883787863385398, guid: 68d24306efb8d384591bc180faf1aaf4, type: 3}
   inputDirection: 3
   outputDirection: 4
