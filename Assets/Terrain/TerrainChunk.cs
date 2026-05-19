@@ -253,10 +253,14 @@ namespace Terrain
                 // Copy mesh Vertices
                 for (int i = 0; i < meshInfo.vertexCount; i++)
                 {
-                    //TODO rotate vertex position based on Rotation
                     int vertexIndex = meshInfo.vertexOffset + i;
                     TerrainVertex vertex = meshVertices[vertexIndex];
+                    // move Position
+                    //TODO rotate vertex position based on Rotation
                     vertex.position += pos;
+                    // scale UV
+                    vertex.uv *= meshInfo.uvScale;
+                    vertex.uv += meshInfo.uvPosition;
                     vertices[vertexOffset + i] = vertex;
                 }
                 // Copy mesh Indices

@@ -70,7 +70,7 @@ namespace Terrain.SpriteAtlas
             for (int i = 0; i < finalTiles.Count; i++)
             {
                 int x = (i * 64) % atlasWidth;
-                int y = (i * 64) / atlasWidth;
+                int y = (i * 64) / atlasWidth * 64;
                 RectInt area = new RectInt(x, y, 64, 64);
                 finalTiles[i].WriteToTexture(atlas, area);
             }

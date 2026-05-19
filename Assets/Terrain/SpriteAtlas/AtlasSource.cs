@@ -56,11 +56,11 @@ namespace Terrain.SpriteAtlas
                 }
                 case SourceType.Texture:
                 {
-                    for (int x = 0; x < area.x; x++)
+                    for (int x = 0; x < area.width; x++)
                     {
-                        for (int y = 0; y < area.y; y++)
+                        for (int y = 0; y < area.height; y++)
                         {
-                            Color pixel = texture.GetPixel((int)sprite.rect.xMin + x, (int)sprite.rect.yMin + y);
+                            Color pixel = texture.GetPixel(x, y);
                             writeTexture.SetPixel(area.x + x, area.y + y, pixel);
                         }
                     }

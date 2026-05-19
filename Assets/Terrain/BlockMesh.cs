@@ -7,6 +7,6 @@ namespace Terrain
     public class BlockMesh
     {
         [SerializeField] public Mesh mesh;
-        [SerializeField] public Texture texture;
+        [SerializeField] public Texture2D texture;
     }
 }

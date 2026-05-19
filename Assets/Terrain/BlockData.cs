@@ -62,12 +62,15 @@ namespace Terrain
                         meshToIndex[meshData.mesh] = meshList.Count;
                         int vertexCount = meshData.mesh.vertexCount;
                         int indexCount = (int)meshData.mesh.GetIndexCount(0);
+                        Rect texRect = sourceToUV[new AtlasSource(meshData.texture)];
                         meshList.Add(new BlockMeshInfo()
                         {
                             vertexOffset = totalVertices,
                             vertexCount = vertexCount,
                             indexOffset = totalIndices,
                             indexCount = indexCount,
+                            uvPosition = new Vector2(texRect.xMin, texRect.yMin),
+                            uvScale = new Vector2(texRect.width, texRect.height)
                         });
                         totalVertices += vertexCount;
                         totalIndices += indexCount;
