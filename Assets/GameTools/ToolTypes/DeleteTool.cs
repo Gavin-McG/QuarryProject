@@ -10,29 +10,22 @@ namespace GameTools.Tools
     {
         [SerializeField] private Sprite toolSprite;
         [SerializeField] private GameObject outlinePrefab;
-        [SerializeField] private PointerEventData.InputButton deleteButton = PointerEventData.InputButton.Left;
+        [SerializeField] private PointerEventData.InputButton button = PointerEventData.InputButton.Left;
 
         public override Sprite Sprite => toolSprite;
 
         private TerrainManager terrainManager;
-
         private GameObject outlineObject;
-
-        private PointerEventData cachedEventData;
-
-        private Vector3Int pressPosition;
-
-        private bool overTerrain;
-        private bool buttonHeld;
+        private TerrainDragTracker dragTracker;
 
         public override void Select()
         {
             base.Select();
 
             terrainManager = Managers.GetManager<TerrainManager>();
-
             outlineObject = Instantiate(outlinePrefab);
             outlineObject.SetActive(false);
+            dragTracker = new TerrainDragTracker();
 
             TerrainManager.onPointerDown.AddListener(TerrainDown);
             TerrainManager.onPointerUp.AddListener(TerrainUp);
@@ -44,7 +37,9 @@ namespace GameTools.Tools
         {
             base.Deselect();
 
+            terrainManager = null;
             Destroy(outlineObject);
+            dragTracker = null;
 
             TerrainManager.onPointerDown.RemoveListener(TerrainDown);
             TerrainManager.onPointerUp.RemoveListener(TerrainUp);
@@ -52,37 +47,9 @@ namespace GameTools.Tools
             TerrainManager.onPointerExit.RemoveListener(TerrainExit);
         }
 
-        private bool IsDragging()
-        {
-            return overTerrain && cachedEventData != null;
-        }
-
-        private (Vector3Int min, Vector3Int max) GetDragBounds()
-        {
-            if (!IsDragging()) return default;
-            
-            TerrainPointerInfo currentInfo =
-                TerrainManager.GetRaycastInfo(cachedEventData.pointerCurrentRaycast);
-
-            Vector3Int currentPosition = currentInfo.BackPosition;
-            
-            // Hover only -> 1x1 preview
-            if (!buttonHeld)
-            {
-                outlineObject.transform.position = currentPosition + Vector3.one * 0.5f;
-                outlineObject.transform.localScale = Vector3.one;
-                return (currentPosition, currentPosition);
-            }
-
-            // Drag selection preview
-            Vector3Int min = Vector3Int.Min(pressPosition, currentPosition);
-            Vector3Int max = Vector3Int.Max(pressPosition, currentPosition);
-            return (min, max);
-        }
-
         public override void Update()
         {
-            if (!IsDragging())
+            if (!dragTracker.IsDragging())
             {
                 outlineObject.SetActive(false);
                 return;
@@ -90,10 +57,17 @@ namespace GameTools.Tools
             
             outlineObject.SetActive(true);
 
-            var bounds = GetDragBounds();
+            var dragInfo = dragTracker.GetDragInfo();
 
-            Vector3 scale = (bounds.max - bounds.min) + Vector3.one * 1.02f;
-            Vector3 center = (bounds.min + bounds.max + Vector3.one) * 0.5f;
+            // Calculate min/max
+            Vector3Int startBlock = dragInfo.start.BackPosition;
+            Vector3Int endBlock = dragInfo.end.BackPosition;
+            Vector3 min = Vector3.Min(startBlock, endBlock);
+            Vector3 max = Vector3.Max(startBlock, endBlock);
+            
+            // Apply position & scale to preview
+            Vector3 scale = (max - min) + Vector3.one * 1.02f;
+            Vector3 center = (min + max + Vector3.one) * 0.5f;
 
             outlineObject.transform.position = center;
             outlineObject.transform.localScale = scale;
@@ -101,48 +75,42 @@ namespace GameTools.Tools
         
         private void TerrainDown(PointerEventData eventData)
         {
-            if (eventData.button != deleteButton) return;
-
-            cachedEventData = eventData;
-
-            buttonHeld = true;
-
-            TerrainPointerInfo info =
-                TerrainManager.GetRaycastInfo(eventData.pointerCurrentRaycast);
-
-            pressPosition = info.BackPosition;
+            if (eventData.button != button) return;
+            dragTracker.OnPointerDown(eventData);
         }
 
         private void TerrainUp(PointerEventData eventData)
         {
-            if (eventData.button != deleteButton) return;
+            if (eventData.button != button) return;
 
-            if (IsDragging())
+            // Delete blocks within drag Range
+            if (dragTracker.IsDragging())
             {
-                var bounds = GetDragBounds();
+                var dragInfo = dragTracker.GetDragInfo();
+                Vector3Int startBlock = dragInfo.start.BackPosition;
+                Vector3Int endBlock = dragInfo.end.BackPosition;
+                Vector3Int min = Vector3Int.Min(startBlock, endBlock);
+                Vector3Int max = Vector3Int.Max(startBlock, endBlock);
                 
-                for (int x = bounds.min.x; x <= bounds.max.x; x++)
-                for (int y = bounds.min.y; y <= bounds.max.y; y++)
-                for (int z = bounds.min.z; z <= bounds.max.z; z++)
+                for (int x = min.x; x <= max.x; x++)
+                for (int y = min.y; y <= max.y; y++)
+                for (int z = min.z; z <= max.z; z++)
                 {
                     terrainManager.SetBlock(new Vector3Int(x, y, z), null);
                 }
             }
-
-            cachedEventData = eventData;
-            buttonHeld = false;
+            
+            dragTracker.OnPointerUp(eventData);
         }
 
         private void TerrainEnter(PointerEventData eventData)
         {
-            cachedEventData = eventData;
-            overTerrain = true;
+            dragTracker.OnPointerEnter(eventData);
         }
 
         private void TerrainExit(PointerEventData eventData)
         {
-            cachedEventData = eventData;
-            overTerrain = false;
+            dragTracker.OnPointerExit(eventData);
         }
     }
 }

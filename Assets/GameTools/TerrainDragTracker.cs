@@ -16,7 +16,7 @@ namespace GameTools
             return overTerrain && cachedEventData != null;
         }
 
-        public (TerrainPointerInfo min, TerrainPointerInfo max) GetDragBounds()
+        public (TerrainPointerInfo start, TerrainPointerInfo end) GetDragInfo()
         {
             if (!IsDragging()) return default;
 
