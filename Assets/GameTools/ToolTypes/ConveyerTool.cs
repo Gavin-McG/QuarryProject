@@ -12,35 +12,44 @@ namespace GameTools.Tools
     {
         [SerializeField] private Sprite toolSprite;
         [SerializeField] private ConveyerSet conveyerSet;
-        [SerializeField] private PointerEventData.InputButton placeButton = PointerEventData.InputButton.Left;
+        [SerializeField] private PointerEventData.InputButton button = PointerEventData.InputButton.Left;
         
         public override Sprite Sprite => toolSprite;
         
         private MachineManager machineManager;
+        private TerrainDragTracker dragTracker;
 
         public override void Select()
         {
             base.Select();
-            machineManager = Managers.GetManager<MachineManager>();
             
-            TerrainManager.onPointerClick.AddListener(TerrainClick);
+            machineManager = Managers.GetManager<MachineManager>();
+            dragTracker = new TerrainDragTracker();
+            
+            TerrainManager.onPointerDown.AddListener(TerrainDown);
+            TerrainManager.onPointerUp.AddListener(TerrainUp);
+            TerrainManager.onPointerEnter.AddListener(TerrainEnter);
+            TerrainManager.onPointerExit.AddListener(TerrainExit);
         }
 
         public override void Deselect()
         {
             base.Deselect();
-            TerrainManager.onPointerClick.RemoveListener(TerrainClick);
+            
+            machineManager = null;
+            dragTracker = null;
+            
+            TerrainManager.onPointerDown.RemoveListener(TerrainDown);
+            TerrainManager.onPointerUp.RemoveListener(TerrainUp);
+            TerrainManager.onPointerEnter.RemoveListener(TerrainEnter);
+            TerrainManager.onPointerExit.RemoveListener(TerrainExit);
         }
         
-        // Left click - Place single block
-        private void TerrainClick(PointerEventData eventData)
+        private void PlaceBelts()
         {
-            if (eventData.button != placeButton) return;
-            
-            TerrainPointerInfo startInfo = TerrainManager.GetRaycastInfo(eventData.pointerPressRaycast);
-            Vector3Int startPosition = startInfo.FrontPosition;
-            TerrainPointerInfo endInfo = TerrainManager.GetRaycastInfo(eventData.pointerCurrentRaycast);
-            Vector3Int endPosition = endInfo.FrontPosition;
+            var dragInfo = dragTracker.GetDragInfo();
+            Vector3Int startPosition = dragInfo.start.FrontPosition;
+            Vector3Int endPosition = dragInfo.end.FrontPosition;
         
             if (startPosition.x == endPosition.x)
             {
@@ -98,6 +107,31 @@ namespace GameTools.Tools
                     machineManager.PlaceMachine(position, type, rotation);
                 }
             }
+        }
+        
+        private void TerrainDown(PointerEventData eventData)
+        {
+            if (eventData.button != button) return;
+            dragTracker.OnPointerDown(eventData);
+        }
+
+        private void TerrainUp(PointerEventData eventData)
+        {
+            if (eventData.button != button) return;
+
+            PlaceBelts();
+            
+            dragTracker.OnPointerUp(eventData);
+        }
+
+        private void TerrainEnter(PointerEventData eventData)
+        {
+            dragTracker.OnPointerEnter(eventData);
+        }
+
+        private void TerrainExit(PointerEventData eventData)
+        {
+            dragTracker.OnPointerExit(eventData);
         }
     }
 }
