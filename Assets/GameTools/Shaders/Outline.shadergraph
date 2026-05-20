@@ -3867,7 +3867,7 @@
     "m_ObjectId": "48c95d0d9c014dfe8e9c95d03f4b8160",
     "m_Title": "Remove Edges from disabled sides",
     "m_Position": {
-        "x": -2331.999755859375,
+        "x": -2332.0,
         "y": -972.0
     }
 }
@@ -6180,7 +6180,7 @@
     "m_Title": "Subtract Corners from disabled sides",
     "m_Position": {
         "x": -2360.0,
-        "y": 841.0000610351563
+        "y": 841.0
     }
 }
 
@@ -8855,7 +8855,7 @@
     "m_ObjectId": "de686ef1b3e64db2a90b2d92dd3278b3",
     "m_Title": "Compute Boundaries",
     "m_Position": {
-        "x": -2080.999755859375,
+        "x": -2081.0,
         "y": 70.0
     }
 }

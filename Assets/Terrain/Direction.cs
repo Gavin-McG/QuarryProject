@@ -118,6 +118,15 @@ namespace Terrain
                 _ => Rotation.Degrees0
             };
         }
+
+        public static Quaternion GetQuaternion(Rotation rotation) => rotation switch
+        {
+            Rotation.Degrees0 => Quaternion.identity,
+            Rotation.Degrees90 => Quaternion.Euler(0, 90, 0),
+            Rotation.Degrees180 => Quaternion.Euler(0, 180, 0),
+            Rotation.Degrees270 => Quaternion.Euler(0, 270, 0),
+            _ => throw new ArgumentOutOfRangeException(nameof(rotation))
+        };
     }
     
 }

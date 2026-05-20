@@ -17,3 +17,7 @@ MonoBehaviour:
     m_Bits: 64
   toolSprite: {fileID: 637695850, guid: 753a4a1accf68e54dbb69e11141691be, type: 3}
   conveyerSet: {fileID: 11400000, guid: 7cb0b8ad739b88346af9b76c7a147b37, type: 2}
+  button: 0
+  swapAxisAction: {fileID: -3421872671929583262, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  beltPrefab: {fileID: 3418120010008732152, guid: 325cafcff35f04f44bdb5de0279a3e20, type: 3}
+  cornerPrefab: {fileID: 3418120010008732152, guid: 325cafcff35f04f44bdb5de0279a3e20, type: 3}

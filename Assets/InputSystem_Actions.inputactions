@@ -477,6 +477,34 @@
             ]
         },
         {
+            "name": "Tools",
+            "id": "f58e722c-1a99-4f13-9896-629cecc89ee5",
+            "actions": [
+                {
+                    "name": "First Option",
+                    "type": "Button",
+                    "id": "74ce8756-a44c-477e-abba-17456e2f0ffd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "4bc8049e-de37-4a82-9740-f3464aded8d5",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "First Option",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
             "name": "Camera",
             "id": "4b53bd87-8715-4755-8bfa-77dd2d7c9f74",
             "actions": [
