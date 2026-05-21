@@ -287,7 +287,7 @@ namespace GameTools.Tools
                 AxisMode.XAxis => conveyerSet.GetConveyer(beltDirectionX, beltDirectionZ),
                 _ => conveyerSet.GetConveyer(beltDirectionZ, beltDirectionX),
             };
-            machineManager.PlaceMachine(cornerPosition, type, rotation);
+            machineManager.PlaceMachine(type, cornerPosition, rotation);
         }
         
         private void PlaceBeltLine(Vector3Int startPosition, Vector3Int endPosition, Direction direction)
@@ -301,7 +301,7 @@ namespace GameTools.Tools
                 for (int x = startX; x <= endX; x++)
                 {
                     Vector3Int position = new Vector3Int(x, startPosition.y, startPosition.z);
-                    machineManager.PlaceMachine(position, type, rotation);
+                    machineManager.PlaceMachine(type, position, rotation);
                 }
             }
             else if (direction == Direction.Forward || direction == Direction.Back)
@@ -311,7 +311,7 @@ namespace GameTools.Tools
                 for (int z = startZ; z <= endZ; z++)
                 {
                     Vector3Int position = new Vector3Int(startPosition.x, startPosition.y, z);
-                    machineManager.PlaceMachine(position, type, rotation);
+                    machineManager.PlaceMachine(type, position, rotation);
                 }
             }
         }

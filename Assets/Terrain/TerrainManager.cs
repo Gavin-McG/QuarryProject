@@ -242,15 +242,7 @@ namespace Terrain
         /// <summary>
         /// Sets the block at a specific block position
         /// </summary>
-        public void SetBlock(Vector3Int position, BlockType block)
-        {
-            SetBlock(position, Rotation.Degrees0, block);
-        }
-
-        /// <summary>
-        /// Sets the block at a specific block position
-        /// </summary>
-        public void SetBlock(Vector3Int position, Rotation rotation, BlockType block)
+        public void SetBlock(BlockType block, Vector3Int position, Rotation rotation = Rotation.Degrees0)
         {
             // Get the correct chunk
             ChunkCoord chunkCoord = GetChunkCoord(position);

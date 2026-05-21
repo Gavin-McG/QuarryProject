@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70422e33befc47fba21e63f20aea3811, type: 3}
   m_Name: Item 1
   m_EditorClassIdentifier: ItemSystem::ItemSystem.ItemType
+  mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  material: {fileID: 2100000, guid: 2585bc9b645d8634f81944b2b41ff9a1, type: 2}

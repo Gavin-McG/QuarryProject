@@ -40,7 +40,7 @@ namespace GameTools.Tools
             if (eventData.button != placeButton) return;
             
             TerrainPointerInfo terrainInfo = TerrainManager.GetRaycastInfo(eventData.pointerCurrentRaycast);
-            machineManager.PlaceMachine(terrainInfo.FrontPosition, machineType);
+            machineManager.PlaceMachine(machineType, terrainInfo.FrontPosition, Rotation.Degrees0);
         }
     }
 }

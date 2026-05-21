@@ -57,6 +57,14 @@ namespace Terrain
             Direction.Back
         };
 
+        private static readonly Rotation[] Rotations =
+        {
+            Rotation.Degrees0,
+            Rotation.Degrees90,
+            Rotation.Degrees180,
+            Rotation.Degrees270
+        };
+
         public static int GetRotationIndex(Rotation rotation) => rotation switch
         {
             Rotation.Degrees0 => 0,
@@ -86,6 +94,21 @@ namespace Terrain
             int rotationSteps = (int)rotation;
 
             return HorizontalDirections[(index + rotationSteps) % 4];
+        }
+        
+        public static Vector3Int Rotate(Vector3Int position, Rotation rotation) => rotation switch
+        {
+            Rotation.Degrees0 => position,
+            Rotation.Degrees90 => new Vector3Int(-position.z, position.y, position.x),
+            Rotation.Degrees180 => new Vector3Int(-position.x, position.y, -position.z),
+            Rotation.Degrees270 => new Vector3Int(position.z, position.y, -position.x),
+            _ => throw new ArgumentOutOfRangeException(nameof(rotation))
+        };
+
+        public static Rotation Rotate(Rotation rotation1, Rotation rotation2)
+        {
+            int rotationSum = (GetRotationIndex(rotation1) + GetRotationIndex(rotation2)) % Rotations.Length;
+            return Rotations[rotationSum];
         }
 
         public static Rotation GetRotation(Direction direction) => direction switch

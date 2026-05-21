@@ -35,50 +35,44 @@ namespace MachineSystem.Machines.Conveyer
             return conveyerType;
         }
 
-        public override IEnumerable<Direction> GetInputDirections()
+        public override IEnumerable<MachineFace> GetInputFaces()
         {
-            yield return DirectionUtility.Opposite(inputDirection);
-        }
-
-        public override IEnumerable<Direction> GetOutputDirections()
-        {
-            yield return outputDirection;
-        }
-
-        public override void ConnectInput(Direction direction, Machine machine)
-        {
-            if (direction == DirectionUtility.Opposite(inputDirection))
+            yield return new MachineFace
             {
-                if (node.inputNode == null)
-                {
-                    node.inputNode = machine.GetOutputNode(DirectionUtility.Opposite(direction));
-                }
-                else
-                {
-                    Debug.LogError("Conveyer " + position + ": Attempting to connect already connected side");
-                }
+                position = position,
+                direction = DirectionUtility.Opposite(inputDirection)
+            };
+        }
+
+        public override IEnumerable<MachineFace> GetOutputFaces()
+        {
+            yield return new MachineFace
+            {
+                position = position,
+                direction = outputDirection
+            };
+        }
+
+        public override void ConnectInput(Machine machine, MachineFace face)
+        {
+            if (face.direction == DirectionUtility.Opposite(inputDirection))
+            {
+                node.inputNode = machine.GetOutputNode(face.GetOpposite());
             }
         }
 
-        public override void DisconnectInput(Direction direction, Machine machine)
+        public override void DisconnectInput(MachineFace face)
         {
-            if (direction == DirectionUtility.Opposite(inputDirection))
+            if (face.direction == DirectionUtility.Opposite(inputDirection))
             {
-                if (node.inputNode == null)
-                {
-                    Debug.LogError("Conveyer " + position + ": Attempting to disconnect non-connected side");
-                }
-                else
-                {
-                    node.inputNode = null;
-                }
+                node.inputNode = null;
             }
         }
 
 
-        public override ItemNode GetOutputNode(Direction direction)
+        public override ItemNode GetOutputNode(MachineFace face)
         {
-            return direction == outputDirection ? node : null;
+            return face.direction == outputDirection ? node : null;
         }
 
         public override void Evaluate()
@@ -95,7 +89,7 @@ namespace MachineSystem.Machines.Conveyer
         public void PrintItem()
         {
             ItemInstance itemInstance = node.itemInstance;
-            Debug.Log(itemInstance!=null ? itemInstance.item.ToString() : "No Item");
+            Debug.Log(itemInstance != null ? itemInstance.GetItem().ToString() : "No Item");
         }
 
         public void OnDrawGizmos()

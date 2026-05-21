@@ -98,7 +98,7 @@ namespace GameTools.Tools
                 for (int y = min.y; y <= max.y; y++)
                 for (int z = min.z; z <= max.z; z++)
                 {
-                    terrainManager.SetBlock(new Vector3Int(x, y, z), block);
+                    terrainManager.SetBlock(block, new Vector3Int(x, y, z));
                 }
             }
             

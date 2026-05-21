@@ -36,7 +36,7 @@ namespace GameTools.Tools
             if (eventData.button != changeButton) return;
             
             TerrainPointerInfo terrainInfo = TerrainManager.GetRaycastInfo(eventData.pointerCurrentRaycast);
-            terrainManager.SetBlock(terrainInfo.BackPosition, block);
+            terrainManager.SetBlock(block, terrainInfo.BackPosition);
         }
     }
 }

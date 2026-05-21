@@ -12,10 +12,19 @@ namespace GameTools
     {
         [SerializeField] private PhysicsRaycaster raycaster;
         
-        public static GameTool CurrentTool { get; private set; } = null;
+        public GameTool CurrentTool { get; private set; } = null;
         
         private TerrainManager terrainManager;
-        
+
+        private void OnEnable()
+        {
+            CurrentTool?.Select();
+        }
+
+        private void OnDisable()
+        {
+            CurrentTool?.Deselect();
+        }
 
         private void Update()
         {

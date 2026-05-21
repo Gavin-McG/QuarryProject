@@ -14,12 +14,25 @@ namespace ItemSystem
         public static readonly UnityEvent<ItemInstance, PointerEventData> onPointerExit = new();
         public static readonly UnityEvent<ItemInstance, PointerEventData> onPointerMove = new();
         
-        [SerializeField] public ItemQuantity item;
+        [SerializeField] private MeshFilter meshFilter;
+        [SerializeField] private MeshRenderer meshRenderer;
+        [SerializeField] private ItemQuantity item;
 
         public void SetPosition(Vector3 position)
         {
             transform.position = position;
         }
+
+        public void SetItem(ItemQuantity item)
+        {
+            this.item = item;
+            if (item.type.mesh != null)
+                meshFilter.sharedMesh = item.type.mesh;
+            if (item.type.material != null)
+                meshRenderer.sharedMaterial = item.type.material;
+        }
+        
+        public ItemQuantity GetItem() => item;
         
         public void OnPointerClick(PointerEventData eventData)
         {

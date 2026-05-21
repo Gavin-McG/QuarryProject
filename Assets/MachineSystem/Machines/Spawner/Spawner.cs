@@ -36,24 +36,43 @@ namespace MachineSystem.Machines.Spawner
             return spawnerType;
         }
 
-        public override IEnumerable<Direction> GetInputDirections()
+        public override IEnumerable<MachineFace> GetInputFaces()
         {
-            return new List<Direction>();
+            yield break;
         }
 
-        public override IEnumerable<Direction> GetOutputDirections()
+        public override IEnumerable<MachineFace> GetOutputFaces()
         {
-            return new List<Direction>() { Direction.Left ,Direction.Right, Direction.Forward, Direction.Back };
+            yield return new MachineFace
+            {
+                position = position,
+                direction = Direction.Right
+            };
+            yield return new MachineFace
+            {
+                position = position,
+                direction = Direction.Forward
+            };
+            yield return new MachineFace
+            {
+                position = position,
+                direction = Direction.Left
+            };
+            yield return new MachineFace
+            {
+                position = position,
+                direction = Direction.Back
+            };
         }
 
-        public override void ConnectInput(Direction direction, Machine machine) {}
+        public override void ConnectInput(Machine machine, MachineFace face) {}
 
-        public override void DisconnectInput(Direction direction, Machine machine) {}
+        public override void DisconnectInput(MachineFace face) {}
 
 
-        public override ItemNode GetOutputNode(Direction direction)
+        public override ItemNode GetOutputNode(MachineFace face)
         {
-            return (direction != Direction.Up && direction != Direction.Down) ? node : null;
+            return (face.direction != Direction.Up && face.direction != Direction.Down) ? node : null;
         }
 
         public override void Evaluate()
@@ -68,7 +87,7 @@ namespace MachineSystem.Machines.Spawner
             // Spawn new item
             if (node.itemInstance != null) return;
             ItemInstance newInstance = Instantiate(itemPrefab);
-            newInstance.item = spawnerType.itemQuantity;
+            newInstance.SetItem(spawnerType.itemQuantity);
             newInstance.SetPosition(node.position);
             
             node.itemInstance = newInstance;
@@ -78,7 +97,7 @@ namespace MachineSystem.Machines.Spawner
         public void PrintItem()
         {
             ItemInstance itemInstance = node.itemInstance;
-            Debug.Log(itemInstance!=null ? itemInstance.item.ToString() : "No Item");
+            Debug.Log(itemInstance!=null ? itemInstance.GetItem().ToString() : "No Item");
         }
 
         public void OnDrawGizmos()

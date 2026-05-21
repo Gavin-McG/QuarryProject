@@ -125,6 +125,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a7cbd8f8ae44f6ab655d4fff3071e5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ItemSystem::ItemSystem.ItemInstance
+  meshFilter: {fileID: 3117339455384081786}
+  meshRenderer: {fileID: 3372849973181487281}
   item:
     type: {fileID: 0}
     quantity: 0

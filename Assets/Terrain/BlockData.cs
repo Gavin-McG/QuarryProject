@@ -4,6 +4,7 @@ using Terrain.Blocks;
 using Terrain.SpriteAtlas;
 using Unity.Collections;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Terrain
 {
@@ -159,6 +160,11 @@ namespace Terrain
             meshInfos.Dispose();
             meshVertices.Dispose();
             meshIndices.Dispose();
+            
+            sourceToUV.Clear();
+            meshToIndex.Clear();
+            
+            Object.Destroy(blockAtlas);
         }
 
         public static BlockType GetBlock(int index)

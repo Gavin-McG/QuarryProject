@@ -112,7 +112,7 @@ namespace GameTools.Tools
         {
             if (eventData.button != selectButton) return;
             
-            Debug.Log(instance.item);
+            Debug.Log(instance.GetItem());
         }
 
         private void ItemEnter(ItemInstance instance, PointerEventData eventData)
