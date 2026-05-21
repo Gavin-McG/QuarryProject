@@ -130,13 +130,13 @@ namespace MachineSystem
            machines.Add(newMachine);
            foreach (LayoutBlock block in machineLayout)
            {
+               terrainManager.SetBlock(block.blockType, block.position, block.rotation);
                Vector3Int arrayIndex = block.position - rangeMin;
                machineGrid[arrayIndex.x, arrayIndex.y, arrayIndex.z] = new MachineCell()
                {
                    machine = newMachine,
                    localPosition = block.position - position,
                };
-               terrainManager.SetBlock(block.blockType, block.position, block.rotation);
            }
            
            // Connect Machine Inputs
