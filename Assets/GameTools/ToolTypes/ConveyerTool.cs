@@ -36,6 +36,8 @@ namespace GameTools.Tools
             machineManager = Managers.GetManager<MachineManager>();
             dragTracker = new TerrainDragTracker();
             
+            swapAxisAction.action.Enable();
+            
             beltOutline1 = Instantiate(beltPrefab);
             beltOutline2 = Instantiate(beltPrefab);
             cornerOutline = Instantiate(cornerPrefab);
@@ -57,6 +59,8 @@ namespace GameTools.Tools
             
             machineManager = null;
             dragTracker = null;
+            
+            swapAxisAction.action.Disable();
             
             Destroy(beltOutline1);
             Destroy(beltOutline2);
